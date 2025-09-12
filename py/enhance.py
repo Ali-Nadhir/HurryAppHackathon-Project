@@ -1,18 +1,36 @@
 import sys
 import cv2
-from fingerprint_enhancer.fingerprint_image_enhancer import FingerprintImageEnhancer
-import fingerprint_feature_extractor
+# from fingerprint_enhancer.fingerprint_image_enhancer import FingerprintImageEnhancer
+# import fingerprint_feature_extractor
 
 
-image_enhancer = FingerprintImageEnhancer()
+# image_enhancer = FingerprintImageEnhancer()
 
-def enhance_image(img):
-    if len(img.shape) > 2:  # convert image into gray if necessary
-        img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    image_enhancer.enhance(img, invert_output=True)
+def enhance_fingerprint(img):
+    normalized = cv2.normalize(img, None, 0, 255, cv2.NORM_MINMAX)
 
-    # FeaturesTerminations, FeaturesBifurcations = fingerprint_feature_extractor.extract_minutiae_features(img, spuriousMinutiaeThresh=10, invertImage=False)
-    # print(FeaturesBifurcations, FeaturesTerminations)
+    denoised = cv2.GaussianBlur(normalized, (5, 5), 0)
+
+    clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
+    clahe_img = clahe.apply(denoised)
+
+    gabor_kernels = []
+    for theta in np.arange(0, np.pi, np.pi / 4):
+        kernel = cv2.getGaborKernel((21, 21), 4.0, theta, 10.0, 0.5, 0, ktype=cv2.CV_32F)
+        gabor_kernels.append(kernel)
+
+    enhanced = np.zeros_like(clahe_img, dtype=np.float32)
+    for kernel in gabor_kernels:
+        filtered = cv2.filter2D(clahe_img.astype(np.float32), cv2.CV_32F, kernel)
+        np.maximum(enhanced, filtered, enhanced)
+
+    enhanced = cv2.normalize(enhanced, None, 0, 255, cv2.NORM_MINMAX).astype(np.uint8)
+
+    _, binary = cv2.threshold(enhanced, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+
+    final = cv2.medianBlur(binary, 3)
+
+    return final
 
 def match_fingerprints(img1, img2):
     orb = cv2.ORB_create(nfeatures=2000)
