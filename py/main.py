@@ -1,15 +1,20 @@
 import sqlite3
+import sqlite_vec
+from sqlite_vec import serialize_float32
 from fastapi import FastAPI, HTTPException, Depends
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from typing import List, Optional
 from fastapi.middleware.cors import CORSMiddleware
 import httpx
+from model import get_fingerprint_embedding
+from enhance import enhance_fingerprint
+import time
+
 
 DB_PATH = "data.db"
 
 app = FastAPI()
-
 
 app.add_middleware(
     CORSMiddleware,
@@ -22,6 +27,9 @@ app.add_middleware(
 # ================== DB UTILS ==================
 def get_db():
     conn = sqlite3.connect(DB_PATH)
+    conn.enable_load_extension(True)
+    sqlite_vec.load(conn)
+    conn.enable_load_extension(False)
     conn.row_factory = sqlite3.Row  # rows as dict-like
     try:
         yield conn
@@ -30,6 +38,9 @@ def get_db():
 
 def init_db():
     conn = sqlite3.connect(DB_PATH)
+    conn.enable_load_extension(True)
+    sqlite_vec.load(conn)
+    conn.enable_load_extension(False)
     cur = conn.cursor()
     cur.execute("""
     CREATE TABLE IF NOT EXISTS person (
@@ -48,6 +59,12 @@ def init_db():
         person_id INTEGER,
         finger TEXT,
         FOREIGN KEY(person_id) REFERENCES person(id) ON DELETE CASCADE
+    )
+    """)
+    cur.execute("""
+    CREATE VIRTUAL TABLE IF NOT EXISTS scans_vec USING vec0(
+        id INTEGER PRIMARY KEY,
+        embedding FLOAT[512] DISTANCE COSINE
     )
     """)
     conn.commit()
@@ -103,7 +120,7 @@ def get_person(person_id: int, db: sqlite3.Connection = Depends(get_db)):
     row = cur.fetchone()
     if not row:
         raise HTTPException(status_code=404, detail="Person not found")
-    return dict(row)
+    return {**dict(row), "status": "active"}
 
 
 @app.delete("/api/people/{person_id}", status_code=204)
@@ -118,14 +135,22 @@ def delete_person(person_id: int, db: sqlite3.Connection = Depends(get_db)):
 
 @app.post("/api/scans", response_model=ScanOut, status_code=201)
 def create_scan(scan: ScanIn, db: sqlite3.Connection = Depends(get_db)):
+    # with httpx.Client(timeout=30) as client:
+    #     response = client.get("http://127.0.0.1:8999/scan")
+    
     cur = db.cursor()
+    enhance_fingerprint()
+    emb = get_fingerprint_embedding("fingerprint.bmp", "test")
     cur.execute(
         "INSERT INTO fingerprint (person_id, finger) VALUES (?, ?)",
         (scan.person_id, scan.finger),
     )
     db.commit()
+    
     new_id = cur.lastrowid
-    return {**scan.dict(), "id": new_id}
+    cur.execute("INSERT INTO scans_vec VALUES (?, ?)", [new_id, serialize_float32(emb[0])] )
+    db.commit()
+    return FileResponse(path='fingerprint.bmp', media_type="image/bmp", filename="fingerprint.bmp")
 
 
 @app.get("/api/people/{person_id}/scans", response_model=List[ScanOut])
@@ -136,11 +161,19 @@ def get_scans_by_person(person_id: int, db: sqlite3.Connection = Depends(get_db)
     return [dict(row) for row in rows]
 
 
-@app.get("/api/scanner")
-async def get_scanner():
-    async with httpx.AsyncClient() as client:
-        response = await client.get("http://127.0.0.1:8999/scan")
-        return FileResponse(path='fingerprint.bmp', media_type="image/bmp", filename="fingerprint.bmp")
+@app.get("/api/match")
+def get_match(db: sqlite3.Connection = Depends(get_db)):
+    # with httpx.Client(timeout=30) as client:
+    #     response = client.get("http://127.0.0.1:8999/scan")
+    start_time = time.perf_counter()
+    enhance_fingerprint()
+    emb = get_fingerprint_embedding("fingerprint.bmp", "test")
+    
+    cur = db.execute("SELECT p.*, (1.0 - distance) * 100 AS match_percent FROM scans_vec v JOIN fingerprint f ON v.id = f.id JOIN person p ON p.id = f.person_id WHERE v.embedding MATCH ? AND k = 5 ORDER BY v.distance",[serialize_float32(emb[0])] )
+    end_time = time.perf_counter()
+
+    return {"latency": end_time - start_time, "results": [dict(row) for row in cur.fetchall()]}
+
 
 
 
