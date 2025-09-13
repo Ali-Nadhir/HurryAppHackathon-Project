@@ -9,10 +9,10 @@ import sys
 import glob
 
 class FingerprintEmbeddingNet(nn.Module):
-    def __init__(self, embedding_dim=512):
+    def __init__(self, embedding_dim=2048):
         super().__init__()
         # Use ResNet18 backbone (pretrained on ImageNet)
-        resnet = models.resnet18(weights=models.ResNet18_Weights.DEFAULT)
+        resnet = models.resnet152(weights=models.ResNet152_Weights.DEFAULT)
         # Remove the final classification layer
         self.feature_extractor = nn.Sequential(*list(resnet.children())[:-1])
         # Add a fully-connected layer to produce fixed-size embedding
@@ -46,7 +46,7 @@ def get_fingerprint_embedding(image_path, person_name):
     
     # Initialize model with fixed seed for consistency
     torch.manual_seed(42)  # Fixed seed for reproducible embeddings
-    model = FingerprintEmbeddingNet(embedding_dim=512)
+    model = FingerprintEmbeddingNet(embedding_dim=2048)
     model.eval()
     
     # Load and process the fingerprint image
