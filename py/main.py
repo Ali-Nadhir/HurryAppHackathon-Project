@@ -1,15 +1,17 @@
 import sqlite3
+import sqlite_vec
+from sqlite_vec import serialize_float32
 from fastapi import FastAPI, HTTPException, Depends
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from typing import List, Optional
 from fastapi.middleware.cors import CORSMiddleware
 import httpx
+from model import get_fingerprint_embedding
 
 DB_PATH = "data.db"
 
 app = FastAPI()
-
 
 app.add_middleware(
     CORSMiddleware,
@@ -22,6 +24,9 @@ app.add_middleware(
 # ================== DB UTILS ==================
 def get_db():
     conn = sqlite3.connect(DB_PATH)
+    conn.enable_load_extension(True)
+    sqlite_vec.load(conn)
+    conn.enable_load_extension(False)
     conn.row_factory = sqlite3.Row  # rows as dict-like
     try:
         yield conn
@@ -30,6 +35,9 @@ def get_db():
 
 def init_db():
     conn = sqlite3.connect(DB_PATH)
+    conn.enable_load_extension(True)
+    sqlite_vec.load(conn)
+    conn.enable_load_extension(False)
     cur = conn.cursor()
     cur.execute("""
     CREATE TABLE IF NOT EXISTS person (
@@ -48,6 +56,12 @@ def init_db():
         person_id INTEGER,
         finger TEXT,
         FOREIGN KEY(person_id) REFERENCES person(id) ON DELETE CASCADE
+    )
+    """)
+    cur.execute("""
+    CREATE VIRTUAL TABLE IF NOT EXISTS scans_vec USING vec0(
+        id INTEGER PRIMARY KEY,
+        embedding FLOAT[512]
     )
     """)
     conn.commit()
@@ -137,10 +151,25 @@ def get_scans_by_person(person_id: int, db: sqlite3.Connection = Depends(get_db)
 
 
 @app.get("/api/scanner")
-async def get_scanner():
-    async with httpx.AsyncClient() as client:
-        response = await client.get("http://127.0.0.1:8999/scan")
-        return FileResponse(path='fingerprint.bmp', media_type="image/bmp", filename="fingerprint.bmp")
+def get_scanner(db: sqlite3.Connection = Depends(get_db)):
+    with httpx.AsyncClient(timeout=30) as client:
+        response = client.get("http://127.0.0.1:8999/scan")
+
+    emb = get_fingerprint_embedding("fingerprint.bmp", "test")
+    db.execute("INSERT INTO scans_vec VALUES (0, ?)",[serialize_float32(emb[0])] )
+    db.commit()
+    return emb
+    # return FileResponse(path='fingerprint.bmp', media_type="image/bmp", filename="fingerprint.bmp")
+
+@app.get("/api/match")
+def get_scanner(db: sqlite3.Connection = Depends(get_db)):
+    emb = get_fingerprint_embedding("fingerprint.bmp", "test")
+    cur = db.execute("SELECT id, distance FROM scans_vec WHERE embedding MATCH ? ORDER BY distance LIMIT 5",[serialize_float32(emb[0])] )
+    return [dict(row) for row in cur.fetchall()]
+    # async with httpx.AsyncClient() as client:
+        # response = await client.get("http://127.0.0.1:8999/scan")
+        # return FileResponse(path='fingerprint.bmp', media_type="image/bmp", filename="fingerprint.bmp")
+
 
 
 
