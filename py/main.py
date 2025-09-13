@@ -1,11 +1,23 @@
 import sqlite3
 from fastapi import FastAPI, HTTPException, Depends
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from typing import List, Optional
+from fastapi.middleware.cors import CORSMiddleware
+import httpx
 
 DB_PATH = "data.db"
 
 app = FastAPI()
+
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # ================== DB UTILS ==================
 def get_db():
@@ -115,9 +127,19 @@ def create_scan(scan: ScanIn, db: sqlite3.Connection = Depends(get_db)):
     return {**scan.dict(), "id": new_id}
 
 
-@app.get("/people/{person_id}/scans", response_model=List[ScanOut])
+@app.get("/api/people/{person_id}/scans", response_model=List[ScanOut])
 def get_scans_by_person(person_id: int, db: sqlite3.Connection = Depends(get_db)):
     cur = db.cursor()
     cur.execute("SELECT * FROM fingerprint WHERE person_id = ?", (person_id,))
     rows = cur.fetchall()
     return [dict(row) for row in rows]
+
+
+@app.get("/api/scanner")
+async def get_scanner():
+    async with httpx.AsyncClient() as client:
+        response = await client.get("http://127.0.0.1:8999/scan")
+        return FileResponse(path='fingerprint.bmp', media_type="image/bmp", filename="fingerprint.bmp")
+
+
+
