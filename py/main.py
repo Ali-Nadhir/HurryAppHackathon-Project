@@ -10,7 +10,7 @@ import httpx
 from model import get_fingerprint_embedding
 from enhance import enhance_fingerprint
 import time
-
+import shutil
 
 DB_PATH = "data.db"
 
@@ -64,7 +64,7 @@ def init_db():
     cur.execute("""
     CREATE VIRTUAL TABLE IF NOT EXISTS scans_vec USING vec0(
         id INTEGER PRIMARY KEY,
-        embedding FLOAT[512] DISTANCE COSINE
+        embedding FLOAT[2048] DISTANCE COSINE
     )
     """)
     conn.commit()
@@ -113,6 +113,10 @@ def get_people(db: sqlite3.Connection = Depends(get_db)):
     return [{**dict(row), "status": "active"} for row in rows]
 
 
+@app.get("/api/scans/{scan_id}", response_model=PersonOut)
+def get_person(scan_id: int):
+    return FileResponse(path=f"scans/{scan_id}.bmp", media_type="image/bmp", filename="scan.bmp")
+
 @app.get("/api/people/{person_id}", response_model=PersonOut)
 def get_person(person_id: int, db: sqlite3.Connection = Depends(get_db)):
     cur = db.cursor()
@@ -137,7 +141,6 @@ def delete_person(person_id: int, db: sqlite3.Connection = Depends(get_db)):
 def create_scan(scan: ScanIn, db: sqlite3.Connection = Depends(get_db)):
     # with httpx.Client(timeout=30) as client:
     #     response = client.get("http://127.0.0.1:8999/scan")
-    
     cur = db.cursor()
     enhance_fingerprint()
     emb = get_fingerprint_embedding("fingerprint.bmp", "test")
@@ -148,9 +151,26 @@ def create_scan(scan: ScanIn, db: sqlite3.Connection = Depends(get_db)):
     db.commit()
     
     new_id = cur.lastrowid
+    shutil.copy("fingerprint.bmp", f"scans/{new_id}.bmp")
     cur.execute("INSERT INTO scans_vec VALUES (?, ?)", [new_id, serialize_float32(emb[0])] )
     db.commit()
     return FileResponse(path='fingerprint.bmp', media_type="image/bmp", filename="fingerprint.bmp")
+
+@app.post("/api/dataset", response_model=ScanOut, status_code=201)
+def create_scan(scan: ScanIn, db: sqlite3.Connection = Depends(get_db)):
+    cur = db.cursor()
+    enhance_fingerprint()
+    emb = get_fingerprint_embedding("fingerprint.bmp", "test")
+    cur.execute(
+        "INSERT INTO fingerprint (person_id, finger) VALUES (?, ?)",
+        (scan.person_id, scan.finger),
+    )
+    db.commit()
+    
+    new_id = cur.lastrowid
+    shutil.copy("fingerprint.bmp", f"scans/{new_id}.bmp")
+    cur.execute("INSERT INTO scans_vec VALUES (?, ?)", [new_id, serialize_float32(emb[0])] )
+    db.commit()
 
 
 @app.get("/api/people/{person_id}/scans", response_model=List[ScanOut])
