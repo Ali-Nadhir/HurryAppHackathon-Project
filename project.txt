@@ -1,0 +1,21 @@
+national fingerprint registry & matching
+
+distorted fingerprint matching
+
+cnn for fingerprint
+
+siamese network matching
+
+distortions:
+geometric,partial/occlusion, blur, noise, morphs, adversarial attacks
+
+geometric abuse (rotation, scaling, translations, warping, deformation)
+
+partial (cropping, 15% -> 60% = recognizable, more is unrecognizable)
+
+compression ()
+
+morph (overlay, noise, color filter)
+
+gan based augmentation
+cnn image enhancer
