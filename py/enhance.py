@@ -10,6 +10,14 @@ from skimage import io, color
 from scipy.spatial import KDTree
 import math
 
+image_enhancer = FingerprintImageEnhancer()
+
+def enhance_fingerprint():
+    img = cv2.imread("fingerprint.bmp")
+    if len(img.shape) > 2:  # convert image into gray if necessary
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    image_enhancer.enhance(img, invert_output=True)  # run image enhancer
+    image_enhancer.save_enhanced_image("./fingerprint.bmp")  # save output
 
 def minutiae_to_tuples(minutiae_list, expand=True):
     result = []
@@ -84,17 +92,17 @@ def match_minutiae(minutiae1, minutiae2, dist_thresh=15, orient_thresh=30):
     return score, matched
 
 
-image_enhancer = FingerprintImageEnhancer()
-img = cv2.imread('fingerprint.bmp', 0)
-img2 = cv2.imread('fingerprint2.bmp', 0)
+# image_enhancer = FingerprintImageEnhancer()
+# img = cv2.imread('fingerprint.bmp', 0)
+# img2 = cv2.imread('fingerprint2.bmp', 0)
 
-dx, dy = phase_correlation(img, img2)
-t1, b1 = fingerprint_feature_extractor.extract_minutiae_features(img, spuriousMinutiaeThresh=10, invertImage=False)
-t2, b2 = fingerprint_feature_extractor.extract_minutiae_features(img2, spuriousMinutiaeThresh=10, invertImage=False)
+# dx, dy = phase_correlation(img, img2)
+# t1, b1 = fingerprint_feature_extractor.extract_minutiae_features(img, spuriousMinutiaeThresh=10, invertImage=False)
+# t2, b2 = fingerprint_feature_extractor.extract_minutiae_features(img2, spuriousMinutiaeThresh=10, invertImage=False)
 
-minutiae1 = minutiae_to_tuples(t1 + b1)
-minutiae2 = minutiae_to_tuples(t2 + b2)
-m2_aligned = apply_shift(minutiae2, dx, dy)
+# minutiae1 = minutiae_to_tuples(t1 + b1)
+# minutiae2 = minutiae_to_tuples(t2 + b2)
+# m2_aligned = apply_shift(minutiae2, dx, dy)
 
-m = match_minutiae(minutiae1, m2_aligned)
-print(m[0])
+# m = match_minutiae(minutiae1, m2_aligned)
+# print(m[0])
