@@ -9,6 +9,8 @@ from fastapi.middleware.cors import CORSMiddleware
 import httpx
 from model import get_fingerprint_embedding
 from enhance import enhance_fingerprint
+import time
+
 
 DB_PATH = "data.db"
 
@@ -163,11 +165,14 @@ def get_scans_by_person(person_id: int, db: sqlite3.Connection = Depends(get_db)
 def get_match(db: sqlite3.Connection = Depends(get_db)):
     # with httpx.Client(timeout=30) as client:
     #     response = client.get("http://127.0.0.1:8999/scan")
+    start_time = time.perf_counter()
     enhance_fingerprint()
     emb = get_fingerprint_embedding("fingerprint.bmp", "test")
     
     cur = db.execute("SELECT p.*, (1.0 - distance) * 100 AS match_percent FROM scans_vec v JOIN fingerprint f ON v.id = f.id JOIN person p ON p.id = f.person_id WHERE v.embedding MATCH ? AND k = 5 ORDER BY v.distance",[serialize_float32(emb[0])] )
-    return [dict(row) for row in cur.fetchall()]
+    end_time = time.perf_counter()
+
+    return {"latency": end_time - start_time, "results": [dict(row) for row in cur.fetchall()]}
 
 
 
