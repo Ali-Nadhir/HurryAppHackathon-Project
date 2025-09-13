@@ -66,6 +66,7 @@ class PersonIn(BaseModel):
 
 class PersonOut(PersonIn):
     id: int
+    status: str
 
 class ScanIn(BaseModel):
     person_id: int
@@ -84,7 +85,7 @@ def create_person(person: PersonIn, db: sqlite3.Connection = Depends(get_db)):
     )
     db.commit()
     new_id = cur.lastrowid
-    return {**person.dict(), "id": new_id}
+    return {**person.dict(), "id": new_id, "status": "active"}
 
 
 @app.get("/api/people", response_model=List[PersonOut])
@@ -92,7 +93,7 @@ def get_people(db: sqlite3.Connection = Depends(get_db)):
     cur = db.cursor()
     cur.execute("SELECT * FROM person")
     rows = cur.fetchall()
-    return [dict(row) for row in rows]
+    return [{**dict(row), "status": "active"} for row in rows]
 
 
 @app.get("/api/people/{person_id}", response_model=PersonOut)
