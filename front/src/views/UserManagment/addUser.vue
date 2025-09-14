@@ -29,7 +29,7 @@
           </p>
         </div>
         <RouterLink
-          to="/devices"
+          to="/manageScan"
           class="px-4 py-2 rounded-2xl bg-white/10 hover:bg-white/15 border border-white/10 backdrop-blur text-sm"
         >
           ← Back to Manage Scans
@@ -112,6 +112,17 @@
               ></textarea>
               <p v-if="errs.address" class="mt-1 text-xs text-rose-300">{{ errs.address }}</p>
             </div>
+            <!-- age -->
+            <div>
+              <label class="block text-sm text-white/70 mb-1">Age</label>
+              <input
+                v-model.trim="form.age"
+                type="text"
+                placeholder="e.x 20"
+                class="w-full rounded-2xl bg-white/5 border border-white/10 backdrop-blur px-4 py-2.5 outline-none focus:ring-2 focus:ring-fuchsia-400/40"
+              />
+              <p v-if="errs.age" class="mt-1 text-xs text-rose-300">{{ errs.age }}</p>
+            </div>
 
             <!-- Actions -->
             <div class="pt-2 flex items-center justify-end gap-3">
@@ -168,6 +179,10 @@
                 <p class="text-xs text-white/60">Address</p>
                 <p class="text-sm">{{ form.address || '—' }}</p>
               </div>
+              <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
+                <p class="text-xs text-white/60">Age</p>
+                <p class="text-sm">{{ form.age || '—' }}</p>
+              </div>
 
               <!-- decorative fingerprint -->
               <div class="mt-2 mx-auto size-44 grid place-items-center">
@@ -207,7 +222,7 @@
 
 <script setup lang="ts">
 const apiURL = import.meta.env.VITE_API_BASE
-import { reactive, computed, ref, onMounted } from 'vue'
+import { reactive, computed, ref } from 'vue'
 import Swal from '@/plugins/swal-theme'
 import axios from 'axios'
 
@@ -219,7 +234,7 @@ const form = reactive({
   email: '',
   role: '' as '' | (typeof roles)[number],
   address: '',
-  age: 20,
+  age: '',
 })
 
 const errs = reactive<{ [k: string]: string | null }>({
@@ -228,12 +243,13 @@ const errs = reactive<{ [k: string]: string | null }>({
   email: null,
   role: null,
   address: null,
+  age: null,
 })
 const submitting = ref(false)
 
 const isValid = computed(() => {
   validate(false)
-  return !errs.name && !errs.phone && !errs.email && !errs.role && !errs.address
+  return !errs.name && !errs.phone && !errs.email && !errs.role && !errs.address && !errs.age
 })
 
 function validate(show = true) {
@@ -242,6 +258,7 @@ function validate(show = true) {
   errs.email = /.+@.+\..+/.test(form.email) ? null : 'Please enter a valid email.'
   errs.role = form.role ? null : 'Please select a role.'
   errs.address = form.address.length >= 5 ? null : 'Please enter an address.'
+  errs.age = form.age.length == 2 ? null : 'please enter valid age'
   return show && Object.values(errs).every((v) => v === null)
 }
 
@@ -261,27 +278,33 @@ async function submit() {
   try {
     const response = await axios.post(apiURL + 'people', form)
 
-    console.log(response)
+    if (response.status == 201) {
+      await Swal.fire({
+        title: 'Creating user…',
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading(),
+        timer: 900,
+      })
+      await Swal.fire({
+        title: 'Saving to database…',
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading(),
+        timer: 900,
+      })
+      await Swal.fire({
+        title: 'User created',
+        icon: 'success',
+        timer: 1100,
+        showConfirmButton: false,
+      })
+
+      reset()
+    }
   } catch (error) {
     console.log(error)
+  } finally {
+    submitting.value = false
   }
-
-  await Swal.fire({
-    title: 'Creating user…',
-    allowOutsideClick: false,
-    didOpen: () => Swal.showLoading(),
-    timer: 900,
-  })
-  await Swal.fire({
-    title: 'Saving to database…',
-    allowOutsideClick: false,
-    didOpen: () => Swal.showLoading(),
-    timer: 900,
-  })
-  await Swal.fire({ title: 'User created', icon: 'success', timer: 1100, showConfirmButton: false })
-
-  submitting.value = false
-  reset()
 }
 
 function reset() {
@@ -290,11 +313,8 @@ function reset() {
   form.email = ''
   form.role = ''
   form.address = ''
+  form.age = ''
 }
-
-onMounted(() => {
-  console.log(apiURL)
-})
 </script>
 
 <style scoped>

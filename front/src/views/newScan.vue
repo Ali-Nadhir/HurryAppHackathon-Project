@@ -70,11 +70,11 @@
                     <div
                       class="size-8 rounded-full bg-gradient-to-br from-indigo-400/60 to-fuchsia-400/60 grid place-items-center text-[11px] font-bold"
                     >
-                      {{ initials(u.full_name) }}
+                      {{ initials(u.name) }}
                     </div>
                     <div>
-                      <div class="text-sm font-semibold">{{ u.full_name }}</div>
-                      <div class="text-white/50 text-xs">{{ u.employee_id }} • {{ u.email }}</div>
+                      <div class="text-sm font-semibold">{{ u.name }}</div>
+                      <div class="text-white/50 text-xs">{{ u.id }} • {{ u.email }}</div>
                     </div>
                   </div>
                 </li>
@@ -89,9 +89,7 @@
               v-if="selectedUser"
               class="mt-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-white/10 border border-white/10"
             >
-              <span class="text-sm"
-                >{{ selectedUser.full_name }} ({{ selectedUser.employee_id }})</span
-              >
+              <span class="text-sm">{{ selectedUser.name }} ({{ selectedUser.id }})</span>
               <button class="text-white/60 hover:text-white" @click="clearUser">
                 <i class="bi bi-x"></i>
               </button>
@@ -128,10 +126,10 @@
                 <button
                   v-for="f in FINGERS"
                   :key="f.key"
-                  @click="selectedFinger = f.key"
+                  @click="selectFinger(f)"
                   :class="[
                     'px-3 py-2 rounded-xl border text-xs backdrop-blur transition',
-                    selectedFinger === f.key
+                    selectedFinger.key === f.key
                       ? 'bg-white text-slate-900 border-white/30 shadow'
                       : 'bg-white/5 text-white/80 border-white/10 hover:bg-white/10',
                   ]"
@@ -239,6 +237,7 @@
               <div class="mx-auto size-72 md:size-80 grid place-items-center">
                 <!-- animated fingerprint svg (loop while scanning) -->
                 <svg
+                  v-if="!imageUrl"
                   viewBox="0 0 200 200"
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"
@@ -269,6 +268,8 @@
                     </linearGradient>
                   </defs>
                 </svg>
+
+                <img v-if="imageUrl" :src="imageUrl" alt="finger print image" />
               </div>
 
               <div class="mt-6 grid grid-cols-2 gap-4">
@@ -300,16 +301,23 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import Swal from '@/plugins/swal-theme'
+import { useUserStore } from '@/stores/usersStore'
+import { storeToRefs } from 'pinia'
+import axios from 'axios'
+const apiURL = import.meta.env.VITE_API_BASE
 
+// stores
+const userStore = useUserStore()
+const { allUsers } = storeToRefs(userStore)
 // --- mock datasets ---
 
 type Status = 'active' | 'inactive' | 'locked'
 interface UserDto {
   id: number
   employee_id: string
-  full_name: string
+  name: string
   email: string
   status: Status
   last_scan_at: string | null
@@ -332,16 +340,16 @@ type FingerKey =
   | 'R_RING'
   | 'R_PINKY'
 const FINGERS = [
-  { key: 'L_THUMB', short: 'L-Thumb', label: 'Left Thumb' },
-  { key: 'L_INDEX', short: 'L-Index', label: 'Left Index' },
-  { key: 'L_MIDDLE', short: 'L-Middle', label: 'Left Middle' },
-  { key: 'L_RING', short: 'L-Ring', label: 'Left Ring' },
-  { key: 'L_PINKY', short: 'L-Pinky', label: 'Left Pinky' },
-  { key: 'R_THUMB', short: 'R-Thumb', label: 'Right Thumb' },
-  { key: 'R_INDEX', short: 'R-Index', label: 'Right Index' },
-  { key: 'R_MIDDLE', short: 'R-Middle', label: 'Right Middle' },
-  { key: 'R_RING', short: 'R-Ring', label: 'Right Ring' },
-  { key: 'R_PINKY', short: 'R-Pinky', label: 'Right Pinky' },
+  { key: 'L_THUMB', short: 'L-Thumb', label: 'Left Thumb', id: 1 },
+  { key: 'L_INDEX', short: 'L-Index', label: 'Left Index', id: 2 },
+  { key: 'L_MIDDLE', short: 'L-Middle', label: 'Left Middle', id: 3 },
+  { key: 'L_RING', short: 'L-Ring', label: 'Left Ring', id: 4 },
+  { key: 'L_PINKY', short: 'L-Pinky', label: 'Left Pinky', id: 5 },
+  { key: 'R_THUMB', short: 'R-Thumb', label: 'Right Thumb', id: 6 },
+  { key: 'R_INDEX', short: 'R-Index', label: 'Right Index', id: 7 },
+  { key: 'R_MIDDLE', short: 'R-Middle', label: 'Right Middle', id: 8 },
+  { key: 'R_RING', short: 'R-Ring', label: 'Right Ring', id: 9 },
+  { key: 'R_PINKY', short: 'R-Pinky', label: 'Right Pinky', id: 10 },
 ] as const
 
 const FIRST = [
@@ -401,17 +409,16 @@ const devices: DeviceDto[] = [
 // --- form state ---
 const userQuery = ref('')
 const selectedUser = ref<UserDto | null>(null)
-const selectedFinger = ref<FingerKey | ''>('')
+const selectedFinger = ref<FingerKey | {}>({})
 const deviceId = ref<string>('')
 const notes = ref('')
 const loading = ref(false)
+//const users = userStore.allUsers
 
 const filteredUsers = computed(() => {
   const q = userQuery.value.toLowerCase().trim()
-  if (!q) return ALL_USERS.slice(0, 10)
-  return ALL_USERS.filter(
-    (u) => u.full_name.toLowerCase().includes(q) || u.employee_id.toLowerCase().includes(q),
-  ).slice(0, 10)
+  if (!q) return allUsers.value.slice(0, 10)
+  return allUsers.value.filter((u) => u.name.toLowerCase().includes(q)).slice(0, 10)
 })
 
 const showUserList = computed(() => !!userQuery.value && !selectedUser.value)
@@ -421,11 +428,16 @@ const canStart = computed(() => !!selectedUser.value && !!selectedFinger.value &
 const scanning = ref(false)
 const matchPct = ref(0)
 const stateLabel = computed(() => (scanning.value ? 'Scanning' : 'Idle'))
-const userLabel = computed(() => (selectedUser.value ? selectedUser.value.full_name : '—'))
+const userLabel = computed(() => (selectedUser.value ? selectedUser.value.name : '—'))
 const deviceLabel = computed(() => devices.find((d) => d.id === deviceId.value)?.name || '—')
 const fingerLabel = computed(
   () => FINGERS.find((f) => f.key === (selectedFinger.value as any))?.label || '—',
 )
+
+const selectFinger = (f) => {
+  imageUrl = ''
+  selectedFinger.value = f
+}
 
 function onUserInput() {
   /* reactive via computed */
@@ -449,7 +461,7 @@ function initials(name: string) {
 }
 
 function hl(key: FingerKey) {
-  return selectedFinger.value === key
+  return selectedFinger.value.key === key
     ? 'fill-[url(#fg)] drop-shadow-[0_0_16px_rgba(99,102,241,0.35)]'
     : 'fill-transparent'
 }
@@ -459,44 +471,65 @@ function scanClass(i: number) {
   return scanning.value ? `trace trace${i} animate` : `trace idle`
 }
 
+let imageUrl = ''
+
 async function startScan() {
   if (!canStart.value) return
   loading.value = true
   scanning.value = true
   matchPct.value = 0
 
-  await Swal.fire({
-    title: 'Connecting to device…',
-    allowOutsideClick: false,
-    didOpen: () => Swal.showLoading(),
-    timer: 800,
-  })
-  await Swal.fire({
-    title: 'Capturing fingerprint…',
-    html: `<small>${fingerLabel.value}</small>`,
-    allowOutsideClick: false,
-    didOpen: () => Swal.showLoading(),
-    timer: 1200,
-  })
+  try {
+    const payload = {
+      person_id: selectedUser.value?.id,
+      finger: selectedFinger.value.id.toString(),
+    }
 
-  // fake progress
-  for (let i = 0; i <= 5; i++) {
-    matchPct.value = Math.min(100, i * 18 + Math.floor(Math.random() * 10))
-    await sleep(220)
+    const response = await axios.post(apiURL + 'scans', payload, {
+      responseType: 'blob',
+    })
+
+    if (response.status == 200) {
+      imageUrl = URL.createObjectURL(response.data)
+
+      await Swal.fire({
+        title: 'Connecting to device…',
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading(),
+        timer: 800,
+      })
+      await Swal.fire({
+        title: 'Capturing fingerprint…',
+        html: `<small>${fingerLabel.value}</small>`,
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading(),
+        timer: 1200,
+      })
+
+      // fake progress
+      for (let i = 0; i <= 5; i++) {
+        matchPct.value = Math.min(100, i * 18 + Math.floor(Math.random() * 10))
+        await sleep(220)
+      }
+
+      scanning.value = false
+      matchPct.value = Math.min(100, matchPct.value + 5 + Math.floor(Math.random() * 6))
+
+      await Swal.fire({
+        title: 'fingerprint saved successfuly',
+        text: `${selectedUser.value!.name} • ${matchPct.value}% • ${fingerLabel.value}`,
+        icon: 'success',
+        timer: 1100,
+        showConfirmButton: false,
+      })
+    }
+
+    console.log(response)
+  } catch (error) {
+    console.log(error)
+  } finally {
+    loading.value = false
   }
-
-  scanning.value = false
-  matchPct.value = Math.min(100, matchPct.value + 5 + Math.floor(Math.random() * 6))
-
-  await Swal.fire({
-    title: 'Match found',
-    text: `${selectedUser.value!.full_name} • ${matchPct.value}% • ${fingerLabel.value}`,
-    icon: 'success',
-    timer: 1100,
-    showConfirmButton: false,
-  })
-
-  loading.value = false
 }
 
 function resetForm() {
@@ -512,6 +545,10 @@ function resetForm() {
 function sleep(ms: number) {
   return new Promise((r) => setTimeout(r, ms))
 }
+
+onMounted(() => {
+  userStore.fetchUsers()
+})
 </script>
 
 <style scoped>

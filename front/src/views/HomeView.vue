@@ -1,5 +1,7 @@
 <template>
-  <main class="bg-gradient-to-b from-slate-900 via-slate-950 to-black text-white overflow-hidden">
+  <main
+    class="text-slate-900 bg-slate-50 dark:text-white dark:bg-gradient-to-b dark:from-slate-900 dark:via-slate-950 dark:to-black"
+  >
     <finger-print-hero />
 
     <section class="relative py-16 md:py-24">

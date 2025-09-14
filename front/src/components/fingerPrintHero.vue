@@ -22,9 +22,26 @@
           </div>
           <span class="font-semibold tracking-wide">Fingerprint System</span>
         </div>
-        <RouterLink to="/docs" class="text-sm text-white/70 hover:text-white transition"
+        <!-- <RouterLink to="/docs" class="text-sm text-white/70 hover:text-white transition"
           >Docs</RouterLink
-        >
+        > -->
+        <div class="flex gap-5">
+          <button
+            @click="toggle"
+            class="inline-flex items-center gap-2 px-3 py-2 rounded-2xl border backdrop-blur text-sm transition border-black/10 bg-white/70 hover:bg-white dark:border-white/10 dark:bg-white/10 dark:hover:bg-white/15"
+            aria-label="Toggle color mode"
+          >
+            <span v-if="isDark" class="i bi-moon-stars"></span>
+            <span v-else class="i bi-brightness-high"></span>
+            <span class="font-medium">{{ label }}</span>
+          </button>
+          <button
+            @click="changeLang"
+            class="inline-flex items-center gap-2 px-3 py-2 rounded-2xl border backdrop-blur text-sm transition border-black/10 bg-white/70 hover:bg-white dark:border-white/10 dark:bg-white/10 dark:hover:bg-white/15"
+          >
+            En/Ar
+          </button>
+        </div>
       </nav>
 
       <div class="grid lg:grid-cols-2 gap-10 items-center pt-8">
@@ -38,8 +55,8 @@
             >
           </h1>
           <p class="mt-4 text-white/70 max-w-xl lg:ml-auto lg:mr-0 mx-auto">
-            A modern frontend for your fingerprint system built with Vue&nbsp;3, Pinia, Tailwind,
-            and SweetAlert2. Smooth animations, glass UI, and production-ready structure.
+            Modren fingerprint system built with Vue&nbsp;3, Pinia, Tailwind, and SweetAlert2.
+            Smooth animations, glass UI, and production-ready structure.
           </p>
 
           <div class="mt-8 flex flex-col sm:flex-row gap-4 sm:justify-center lg:justify-end">
@@ -65,6 +82,7 @@
             <span class="text-sm">Pinia</span>
             <span class="text-sm">Tailwind</span>
             <span class="text-sm">SweetAlert2</span>
+            <span class="text-sm">Axios</span>
           </div>
         </div>
 
@@ -139,6 +157,19 @@ const dash = (i: number) => {
 
 const goScan = () => {
   router.push('/newScan') // you can add this route later
+}
+
+import { computed } from 'vue'
+import { useTheme } from '../composable/useTheme'
+import Swal from '@/plugins/swal-theme'
+
+const { isDark, toggle, mode } = useTheme()
+const label = computed(() => (isDark.value ? 'Dark' : 'Light'))
+
+const changeLang = () => {
+  Swal.fire({
+    title: 'easy take english course',
+  })
 }
 </script>
 

@@ -31,9 +31,8 @@
         <RouterLink
           to="/manageScan"
           class="px-4 py-2 rounded-2xl bg-white/10 hover:bg-white/15 border border-white/10 backdrop-blur text-sm"
+          >← Back to Manage Scans</RouterLink
         >
-          ← Back to Manage Scans
-        </RouterLink>
       </div>
 
       <div class="mt-8 grid lg:grid-cols-2 gap-6">
@@ -48,7 +47,7 @@
             <h3 class="text-lg font-semibold mb-4">Device</h3>
 
             <div class="grid sm:grid-cols-2 gap-4">
-              <div>
+              <div class="relative">
                 <label class="block text-sm text-white/70 mb-1">Select mock device</label>
                 <select
                   v-model="deviceId"
@@ -65,9 +64,10 @@
                   </option>
                 </select>
                 <i
-                  class="bi bi-chevron-down absolute mt-[-32px] right-9 pointer-events-none text-white/60"
+                  class="bi bi-chevron-down absolute right-3 top-9 pointer-events-none text-white/60"
                 ></i>
               </div>
+
               <div>
                 <label class="block text-sm text-white/70 mb-1">Mode</label>
                 <select
@@ -180,13 +180,21 @@
                 </div>
                 <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
                   <p class="text-xs text-white/60">Person</p>
-                  <p class="text-lg font-semibold">SomeOne</p>
+                  <p class="text-lg font-semibold">{{ name || '—' }}</p>
                 </div>
+                <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
+                  <p class="text-xs text-white/60">Latency</p>
+                  <p class="text-lg font-semibold">{{ latencyLabel }}</p>
+                </div>
+              </div>
+              <div class="mt-5 text-xs text-center" :class="confidenceClass(confidence)">
+                {{ confidenceLabel(confidence) }}
               </div>
             </div>
           </div>
         </div>
       </div>
+      <!-- /grid -->
     </div>
   </section>
 </template>
@@ -194,13 +202,27 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import Swal from '@/plugins/swal-theme'
+import axios from 'axios'
+
+const apiURL = import.meta.env.VITE_API_BASE
+
+function confidenceLabel(val: number) {
+  if (val > 80) return 'Bank level security'
+  if (val > 50) return 'Gym level security'
+  return '😂 Just for fun'
+}
+
+function confidenceClass(val: number) {
+  if (val > 80) return 'text-green-400'
+  if (val > 50) return 'text-yellow-400'
+  return 'text-rose-400'
+}
 
 interface DeviceDto {
   id: string
   name: string
   location: string
 }
-
 const devices: DeviceDto[] = [
   { id: 'usb-1', name: 'ZK-U450', location: 'Front Desk' },
   { id: 'usb-2', name: 'SecuScan-2', location: 'Server Room' },
@@ -214,6 +236,8 @@ const scanning = ref(false)
 const capturedImage = ref<string | null>(null)
 const capturedAt = ref<number | null>(null)
 const confidence = ref<number>(0)
+const name = ref('')
+const latency = ref<number>(0)
 
 const stateLabel = computed(() =>
   scanning.value ? 'Scanning' : capturedImage.value ? 'Captured' : 'Idle',
@@ -222,9 +246,23 @@ const deviceLabel = computed(() => devices.find((d) => d.id === deviceId.value)?
 const capturedAtLabel = computed(() =>
   capturedAt.value ? new Date(capturedAt.value).toLocaleString() : '—',
 )
+const latencyLabel = computed(() => {
+  const v = latency.value ?? 0
+  if (v < 1 && v >= 0) return `${Math.round(v * 1000)} ms` // seconds -> ms
+  return `${v.toFixed(2)} s`
+})
 
 function scanClass(i: number) {
   return scanning.value ? `trace trace${i} animate` : `trace idle`
+}
+
+// normalize API match_percent which may be in [-1..1] or [0..100], clamp 0..100
+function normalizePercent(raw: any): number {
+  const n = Number(raw)
+  if (!isFinite(n)) return 0
+  const maybeFraction = Math.abs(n) <= 1.0001
+  const pct = maybeFraction ? n * 100 : n
+  return Math.max(0, Math.min(100, Math.round(pct)))
 }
 
 async function scan() {
@@ -232,45 +270,74 @@ async function scan() {
     await Swal.fire({ title: 'Select a device', icon: 'info' })
     return
   }
+
+  // reset + start scanning visuals early
   loading.value = true
   scanning.value = true
   capturedImage.value = null
+  capturedAt.value = null
   confidence.value = 0
+  name.value = ''
+  latency.value = 0
 
-  await Swal.fire({
-    title: 'Activating device…',
-    allowOutsideClick: false,
-    didOpen: () => Swal.showLoading(),
-    timer: 900,
-  })
-  await Swal.fire({
-    title: 'Scanning…',
-    allowOutsideClick: false,
-    didOpen: () => Swal.showLoading(),
-    timer: 1400,
-  })
+  try {
+    // Kick off API call
+    const req = axios.get(`${apiURL}match`)
 
-  // simulate capture by drawing onto a canvas and exporting PNG
-  const dataUrl = await generateFingerprintPng(mode.value)
-  capturedImage.value = dataUrl
-  capturedAt.value = Date.now()
-  confidence.value = Math.min(100, 72 + Math.floor(Math.random() * 25))
+    // Nice staged UI while waiting
+    await Swal.fire({
+      title: 'Activating device…',
+      allowOutsideClick: false,
+      didOpen: () => Swal.showLoading(),
+      timer: 700,
+    })
+    await Swal.fire({
+      title: 'Scanning…',
+      allowOutsideClick: false,
+      didOpen: () => Swal.showLoading(),
+      timer: 1100,
+    })
 
-  scanning.value = false
-  loading.value = false
+    // Await response
+    const { data, status } = await req
+    if (status === 200) {
+      const result = data?.results?.[0] || {}
+      confidence.value = normalizePercent(result.match_percent)
+      name.value = result.name || ''
+      latency.value = Number(data?.latency ?? 0)
+    } else {
+      throw new Error(`Unexpected status ${status}`)
+    }
 
-  await Swal.fire({
-    title: 'Capture complete',
-    icon: 'success',
-    timer: 900,
-    showConfirmButton: false,
-  })
+    // Generate the mock image after we have the result
+    capturedImage.value = await generateFingerprintPng(mode.value)
+    capturedAt.value = Date.now()
+
+    await Swal.fire({
+      title: 'Capture complete',
+      icon: 'success',
+      timer: 900,
+      showConfirmButton: false,
+    })
+  } catch (err: any) {
+    console.error(err)
+    await Swal.fire({
+      title: 'Scan failed',
+      html: err?.response?.data?.message || err?.message || 'Unknown error',
+      icon: 'error',
+    })
+  } finally {
+    scanning.value = false
+    loading.value = false
+  }
 }
 
 function reset() {
   capturedImage.value = null
   capturedAt.value = null
   confidence.value = 0
+  name.value = ''
+  latency.value = 0
 }
 
 function download() {
@@ -305,9 +372,10 @@ async function generateFingerprintPng(detail: 'quick' | 'detailed'): Promise<str
   ctx.fillRect(0, 0, size, size)
 
   // fingerprint rings
-  ctx.strokeStyle = ctx.createLinearGradient(0, 0, size, size) as any
-  ;(ctx.strokeStyle as CanvasGradient).addColorStop(0, '#818cf8')
-  ;(ctx.strokeStyle as CanvasGradient).addColorStop(1, '#e879f9')
+  const grad = ctx.createLinearGradient(0, 0, size, size)
+  grad.addColorStop(0, '#818cf8')
+  grad.addColorStop(1, '#e879f9')
+  ctx.strokeStyle = grad
   ctx.lineWidth = 3
   ctx.lineCap = 'round'
 
@@ -322,9 +390,9 @@ async function generateFingerprintPng(detail: 'quick' | 'detailed'): Promise<str
   // random micro-noise lines
   ctx.globalAlpha = 0.12
   for (let i = 0; i < 120; i++) {
-    const x = Math.random() * size
-    const y = Math.random() * size
-    const w = 8 + Math.random() * 28
+    const x = Math.random() * size,
+      y = Math.random() * size,
+      w = 8 + Math.random() * 28
     ctx.beginPath()
     ctx.moveTo(x, y)
     ctx.lineTo(x + w, y + 1)

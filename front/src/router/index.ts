@@ -34,6 +34,11 @@ const router = createRouter({
       name: 'addUser',
       component: () => import('../views/UserManagment/addUser.vue'),
     },
+    {
+      path: '/manageScan/:id/userFingerPrint',
+      name: 'fingerPrint',
+      component: () => import('../views/userFingerPrint.vue'),
+    },
   ],
 })
 

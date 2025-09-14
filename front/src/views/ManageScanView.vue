@@ -27,6 +27,13 @@
           <p class="mt-1 text-white/60">List, search, and trigger scans for users in the system.</p>
         </div>
         <div class="flex items-center gap-3">
+          <RouterLink
+            to="/"
+            class="px-4 py-2 rounded-2xl bg-white/10 hover:bg-white/15 border border-white/10 backdrop-blur text-sm"
+          >
+            <i class="bi bi-house mr-1"></i> Home
+          </RouterLink>
+
           <button
             class="px-4 py-2 rounded-2xl bg-white/10 hover:bg-white/15 border border-white/10 backdrop-blur text-sm"
             @click="refresh"
@@ -103,9 +110,9 @@
             <div class="text-white/70 text-sm">
               Showing {{ showingFrom }}–{{ showingTo }} of {{ total }} results
             </div>
-            <div class="text-white/50 text-xs">
+            <!-- <div class="text-white/50 text-xs">
               Mock mode is <span class="font-semibold">ON</span>
-            </div>
+            </div> -->
           </div>
 
           <div class="overflow-x-auto">
@@ -142,11 +149,11 @@
                       <div
                         class="size-9 rounded-full bg-gradient-to-br from-indigo-400/60 to-fuchsia-400/60 grid place-items-center text-xs font-bold"
                       >
-                        {{ initials(u.full_name) }}
+                        {{ initials(u.name) }}
                       </div>
                       <div>
-                        <div class="font-semibold">{{ u.full_name }}</div>
-                        <div class="text-white/50 text-xs">ID: {{ u.employee_id }}</div>
+                        <div class="font-semibold">{{ u.name }}</div>
+                        <div class="text-white/50 text-xs">ID: {{ u.id }}</div>
                       </div>
                     </div>
                   </td>
@@ -168,12 +175,13 @@
                   </td>
                   <td class="px-4 sm:px-6 py-4">
                     <div class="flex items-center gap-2 justify-end">
-                      <button
+                      <RouterLink
+                        :to="`/manageScan/${u.id}/userFingerPrint`"
                         class="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/15 border border-white/10 backdrop-blur text-sm transition cursor-pointer"
                         @click="viewUser(u)"
                       >
                         <i class="bi bi-person"></i><span class="sr-only">View</span>
-                      </button>
+                      </RouterLink>
                       <RouterLink
                         to="/newScan"
                         class="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/15 border border-white/10 backdrop-blur text-sm transition cursor-pointer"
@@ -242,26 +250,27 @@
 </template>
 
 <script setup lang="ts">
+const apiURL = import.meta.env.VITE_API_BASE
 import { ref, computed, onMounted, watch } from 'vue'
-import { useRouter } from 'vue-router'
 import Swal from '@/plugins/swal-theme'
-// import api from '@/plugins/axios'; // keep for later when API is ready
+import axios from 'axios'
+import { useUserStore } from '@/stores/usersStore'
 
+//stores
+const userStore = useUserStore()
 // Mock mode settings
-const USE_MOCK = true
+const USE_MOCK = false
 const MOCK_DELAY = 450 // ms
 
 type Status = 'active' | 'inactive' | 'locked'
 interface UserDto {
   id: number
   employee_id: string
-  full_name: string
+  name: string
   email: string
   status: Status
   last_scan_at: string | null // ISO
 }
-
-const router = useRouter()
 
 // UI state
 const loading = ref(false)
@@ -273,6 +282,7 @@ const page = ref<number>(1)
 // Data
 const users = ref<UserDto[]>([])
 const total = ref<number>(0)
+let ALL_USERS = []
 
 const totalPages = computed(() => Math.max(1, Math.ceil(total.value / perPage.value)))
 const showingFrom = computed(() => (total.value === 0 ? 0 : (page.value - 1) * perPage.value + 1))
@@ -301,6 +311,15 @@ async function fetchUsers() {
       users.value = items
       total.value = t
     } else {
+      await sleep(MOCK_DELAY)
+      const response = await userStore.fetchUsers()
+
+      if (response?.status == 200) {
+        ALL_USERS = response.data
+        const { items, total: t } = queryMock(q.value, status.value, page.value, perPage.value)
+        users.value = items
+        total.value = t
+      }
       // const { data } = await api.get('/users', { params: { page: page.value, per_page: perPage.value, q: q.value || undefined, status: status.value || undefined } });
       // users.value = data?.items ?? [];
       // total.value = data?.total ?? 0;
@@ -338,46 +357,46 @@ function viewUser(u: UserDto) {
   console.log('user page')
 }
 
-async function triggerScan(u: UserDto) {
-  const res = await Swal.fire({
-    title: 'Start Scan?',
-    text: `Trigger scan for ${u.full_name}`,
-    icon: 'question',
-    showCancelButton: true,
-    confirmButtonText: 'Start',
-  })
-  if (!res.isConfirmed) return
+// async function triggerScan(u: UserDto) {
+//   const res = await Swal.fire({
+//     title: 'Start Scan?',
+//     text: `Trigger scan for ${u.full_name}`,
+//     icon: 'question',
+//     showCancelButton: true,
+//     confirmButtonText: 'Start',
+//   })
+//   if (!res.isConfirmed) return
 
-  await Swal.fire({
-    title: 'Connecting to device…',
-    allowOutsideClick: false,
-    didOpen: () => Swal.showLoading(),
-    timer: 800,
-  })
-  await Swal.fire({
-    title: 'Scanning…',
-    allowOutsideClick: false,
-    didOpen: () => Swal.showLoading(),
-    timer: 1400,
-  })
-  await Swal.fire({
-    title: 'Matching…',
-    allowOutsideClick: false,
-    didOpen: () => Swal.showLoading(),
-    timer: 800,
-  })
-  await Swal.fire({ title: 'Scan complete', icon: 'success', timer: 900, showConfirmButton: false })
+//   await Swal.fire({
+//     title: 'Connecting to device…',
+//     allowOutsideClick: false,
+//     didOpen: () => Swal.showLoading(),
+//     timer: 800,
+//   })
+//   await Swal.fire({
+//     title: 'Scanning…',
+//     allowOutsideClick: false,
+//     didOpen: () => Swal.showLoading(),
+//     timer: 1400,
+//   })
+//   await Swal.fire({
+//     title: 'Matching…',
+//     allowOutsideClick: false,
+//     didOpen: () => Swal.showLoading(),
+//     timer: 800,
+//   })
+//   await Swal.fire({ title: 'Scan complete', icon: 'success', timer: 900, showConfirmButton: false })
 
-  // update mock last_scan_at
-  const idx = ALL_USERS.findIndex((x) => x.id === u.id)
-  if (idx > -1) ALL_USERS[idx].last_scan_at = new Date().toISOString()
-  fetchUsers()
-}
+//   // update mock last_scan_at
+//   const idx = ALL_USERS.findIndex((x) => x.id === u.id)
+//   if (idx > -1) ALL_USERS[idx].last_scan_at = new Date().toISOString()
+//   fetchUsers()
+// }
 
 async function removeUser(u: UserDto) {
   const ask = await Swal.fire({
     title: 'Delete user?',
-    text: `This will remove ${u.full_name}`,
+    text: `This will remove ${u.name}`,
     icon: 'warning',
     showCancelButton: true,
     confirmButtonText: 'Delete',
@@ -385,15 +404,22 @@ async function removeUser(u: UserDto) {
   })
   if (!ask.isConfirmed) return
 
-  // remove from mock dataset
-  const i = ALL_USERS.findIndex((x) => x.id === u.id)
-  if (i > -1) ALL_USERS.splice(i, 1)
+  try {
+    const response = await axios.delete(apiURL + 'people/' + u.id)
 
-  await Swal.fire({ title: 'Deleted', icon: 'success', timer: 900, showConfirmButton: false })
-  // refresh current page; adjust if past the end
-  const maxPages = Math.max(1, Math.ceil((total.value - 1) / perPage.value))
-  page.value = Math.min(page.value, maxPages)
-  fetchUsers()
+    if (response.status == 204) {
+      const i = ALL_USERS.findIndex((x) => x.id === u.id)
+      if (i > -1) ALL_USERS.splice(i, 1)
+
+      await Swal.fire({ title: 'Deleted', icon: 'success', timer: 900, showConfirmButton: false })
+      // refresh current page; adjust if past the end
+      const maxPages = Math.max(1, Math.ceil((total.value - 1) / perPage.value))
+      page.value = Math.min(page.value, maxPages)
+      fetchUsers()
+    }
+  } catch (error) {
+    console.log(error)
+  }
 }
 
 function refresh() {
@@ -471,45 +497,43 @@ const LAST = [
 ]
 const STATUSES: Status[] = ['active', 'inactive', 'locked']
 
-let ALL_USERS: UserDto[] = (() => {
-  const arr: UserDto[] = []
-  let id = 1
-  for (let i = 0; i < 200; i++) {
-    const f = FIRST[i % FIRST.length]
-    const l = LAST[(i * 3) % LAST.length]
-    const full = `${f} ${l}`
-    const emp = `EMP-${(i + 1).toString().padStart(4, '0')}`
-    const email = `${f.toLowerCase()}.${l.toLowerCase()}${i % 13 || ''}@example.com`
-    const status = STATUSES[i % STATUSES.length]
-    // last scan: some nulls, some recent, some days ago/hours
-    const mod = i % 7
-    const last =
-      mod === 0 ? null : new Date(Date.now() - (mod * 6 + (i % 5)) * 60 * 60 * 1000).toISOString()
-    arr.push({ id: id++, employee_id: emp, full_name: full, email, status, last_scan_at: last })
-  }
-  return arr
-})()
+// let ALL_USERS: UserDto[] = (() => {
+//   const arr: UserDto[] = []
+//   let id = 1
+//   for (let i = 0; i < 200; i++) {
+//     const f = FIRST[i % FIRST.length]
+//     const l = LAST[(i * 3) % LAST.length]
+//     const full = `${f} ${l}`
+//     const emp = `EMP-${(i + 1).toString().padStart(4, '0')}`
+//     const email = `${f.toLowerCase()}.${l.toLowerCase()}${i % 13 || ''}@example.com`
+//     const status = STATUSES[i % STATUSES.length]
+//     // last scan: some nulls, some recent, some days ago/hours
+//     const mod = i % 7
+//     const last =
+//       mod === 0 ? null : new Date(Date.now() - (mod * 6 + (i % 5)) * 60 * 60 * 1000).toISOString()
+//     arr.push({ id: id++, employee_id: emp, full_name: full, email, status, last_scan_at: last })
+//   }
+//   return arr
+// })()
 
 function queryMock(qStr: string, statusFilter: Status | '', pageNum: number, size: number) {
   const q = (qStr || '').toLowerCase().trim()
   let list = ALL_USERS.slice()
   if (q) {
     list = list.filter(
-      (u) =>
-        u.full_name.toLowerCase().includes(q) ||
-        u.email.toLowerCase().includes(q) ||
-        u.employee_id.toLowerCase().includes(q),
+      (u) => u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q),
+      // u.employee_id.toLowerCase().includes(q),
     )
   }
   if (statusFilter) list = list.filter((u) => u.status === statusFilter)
 
   // sort: newest scan first, then name
-  list.sort((a, b) => {
-    const at = a.last_scan_at ? Date.parse(a.last_scan_at) : 0
-    const bt = b.last_scan_at ? Date.parse(b.last_scan_at) : 0
-    if (bt !== at) return bt - at
-    return a.full_name.localeCompare(b.full_name)
-  })
+  // list.sort((a, b) => {
+  //   const at = a.last_scan_at ? Date.parse(a.last_scan_at) : 0
+  //   const bt = b.last_scan_at ? Date.parse(b.last_scan_at) : 0
+  //   if (bt !== at) return bt - at
+  //   return a.full_name.localeCompare(b.full_name)
+  // })
 
   const total = list.length
   const start = (pageNum - 1) * size
