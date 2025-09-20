@@ -1,4 +1,6 @@
 @import 'tailwindcss';
+/* this is so important line to active tailwind dark mode  */
+@custom-variant dark (&:where(.dark, .dark *));
 
 /* --- SweetAlert2 Dark Glass Theme --- */
 .sw-pop {

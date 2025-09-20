@@ -1,16 +1,16 @@
 <template>
   <section
-    class="relative min-h-screen overflow-hidden bg-gradient-to-b from-slate-900 via-slate-950 to-black text-white"
+    class="relative min-h-screen overflow-hidden bg-gradient-to-b from-slate-50 via-slate-100 to-white text-slate-900 dark:from-slate-900 dark:via-slate-950 dark:to-black dark:text-white"
   >
     <!-- floating gradient blobs -->
     <div
-      class="pointer-events-none absolute -top-24 -left-24 h-[28rem] w-[28rem] rounded-full blur-3xl opacity-30 animate-blob mix-blend-soft-light bg-indigo-600"
+      class="pointer-events-none absolute -top-24 -left-24 h-[28rem] w-[28rem] rounded-full blur-3xl opacity-40 mix-blend-multiply bg-indigo-500/50 animate-blob dark:opacity-30 dark:mix-blend-soft-light dark:bg-indigo-600"
     ></div>
     <div
-      class="pointer-events-none absolute top-40 -right-14 h-[30rem] w-[30rem] rounded-full blur-3xl opacity-30 animate-blob animation-delay-2000 mix-blend-soft-light bg-fuchsia-600"
+      class="pointer-events-none absolute top-40 -right-14 h-[30rem] w-[30rem] rounded-full blur-3xl opacity-40 mix-blend-multiply bg-fuchsia-500/50 animate-blob animation-delay-2000 dark:opacity-30 dark:mix-blend-soft-light dark:bg-fuchsia-600"
     ></div>
     <div
-      class="pointer-events-none absolute -bottom-24 left-1/2 -translate-x-1/2 h-[26rem] w-[26rem] rounded-full blur-3xl opacity-25 animate-blob animation-delay-4000 mix-blend-soft-light bg-cyan-500"
+      class="pointer-events-none absolute -bottom-24 left-1/2 -translate-x-1/2 h-[26rem] w-[26rem] rounded-full blur-3xl opacity-30 mix-blend-multiply bg-cyan-400/50 animate-blob animation-delay-4000 dark:opacity-25 dark:mix-blend-soft-light dark:bg-cyan-500"
     ></div>
 
     <div class="relative z-10 container mx-auto px-6 py-10">
@@ -18,29 +18,31 @@
       <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
         <div class="flex items-center gap-4">
           <div
-            class="h-12 w-12 rounded-xl bg-white/10 grid place-items-center border border-white/10 text-sm font-bold"
+            class="h-12 w-12 rounded-xl grid place-items-center border text-sm font-bold bg-slate-900/5 border-slate-900/10 dark:bg-white/10 dark:border-white/10"
           >
             {{ initials(user?.name || 'User') }}
           </div>
           <div>
             <h1 class="text-2xl md:text-3xl font-extrabold leading-tight">
               {{ user?.name || 'User' }}
-              <span class="ml-2 text-sm font-semibold text-white/60">
+              <span class="ml-2 text-sm font-semibold text-slate-500 dark:text-white/60">
                 (EMP{{ String(user?.id).padStart(4, '0') }})</span
               >
             </h1>
-            <p class="mt-1 text-white/60 text-sm">All captured fingerprints for {{ user?.name }}</p>
+            <p class="mt-1 text-slate-600 text-sm dark:text-white/60">
+              All captured fingerprints for {{ user?.name }}
+            </p>
           </div>
         </div>
         <div class="flex flex-wrap items-center gap-3">
           <RouterLink
             to="/manageScan"
-            class="px-3 py-2 rounded-2xl bg-white/10 hover:bg-white/15 border border-white/10 backdrop-blur text-sm"
+            class="px-3 py-2 rounded-2xl bg-white hover:bg-slate-50 border border-slate-900/10 backdrop-blur text-sm text-slate-900 dark:bg-white/10 dark:hover:bg-white/15 dark:border-white/10 dark:text-white"
             >← Back</RouterLink
           >
           <button
             @click="refresh"
-            class="px-3 py-2 rounded-2xl bg-white/10 hover:bg-white/15 border border-white/10 backdrop-blur text-sm"
+            class="px-3 py-2 rounded-2xl bg-white hover:bg-slate-50 border border-slate-900/10 backdrop-blur text-sm text-slate-900 dark:bg-white/10 dark:hover:bg-white/15 dark:border-white/10 dark:text-white"
           >
             <i class="bi bi-arrow-clockwise mr-1"></i>Refresh
           </button>
@@ -50,48 +52,59 @@
       <!-- Filters -->
       <div class="mt-6 grid md:grid-cols-3 gap-4">
         <div>
-          <label class="block text-xs text-white/60 mb-1">Search</label>
+          <label class="block text-xs text-slate-600 mb-1 dark:text-white/60">Search</label>
           <input
             v-model.trim="q"
             placeholder="Search by device or location…"
-            class="w-full rounded-2xl bg-white/5 border border-white/10 px-4 py-2.5 backdrop-blur outline-none focus:ring-2 focus:ring-fuchsia-400/40"
+            class="w-full rounded-2xl bg-slate-200 border border-slate-300 px-4 py-2.5 shadow-sm backdrop-blur outline-none focus:ring-2 focus:ring-fuchsia-400/30 text-slate-900 placeholder-slate-400 dark:bg-white/5 dark:border-white/10 dark:focus:ring-fuchsia-400/40 dark:text-white dark:placeholder-white/60"
           />
         </div>
         <div>
-          <label class="block text-xs text-white/60 mb-1">Finger</label>
+          <label class="block text-xs text-slate-600 mb-1 dark:text-white/60">Finger</label>
           <div class="relative">
             <select
               v-model="finger"
-              class="appearance-none w-full rounded-2xl bg-white/5 border border-white/10 backdrop-blur px-4 py-2.5 pr-10 outline-none focus:ring-2 focus:ring-indigo-400/40 text-white"
+              class="appearance-none w-full rounded-2xl bg-slate-200 border border-slate-300 px-4 py-2.5 pr-10 outline-none focus:ring-2 focus:ring-indigo-400/30 text-slate-900 backdrop-blur dark:bg-white/5 dark:border-white/10 dark:focus:ring-indigo-400/40 dark:text-white"
             >
-              <option value="" class="bg-slate-900 text-white">All fingers</option>
+              <option value="" class="bg-white text-slate-900 dark:bg-slate-900 dark:text-white">
+                All fingers
+              </option>
               <option
                 v-for="f in FINGERS"
                 :key="f.key"
                 :value="f.id"
-                class="bg-slate-900 text-white"
+                class="bg-white text-slate-900 dark:bg-slate-900 dark:text-white"
               >
                 {{ f.label }}
               </option>
             </select>
             <i
-              class="bi bi-chevron-down absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-white/60"
+              class="bi bi-chevron-down absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500 dark:text-white/60"
             ></i>
           </div>
         </div>
         <div>
-          <label class="block text-xs text-white/60 mb-1">Sort</label>
+          <label class="block text-xs text-slate-600 mb-1 dark:text-white/60">Sort</label>
           <div class="relative">
             <select
               v-model="sort"
-              class="appearance-none w-full rounded-2xl bg-white/5 border border-white/10 backdrop-blur px-4 py-2.5 pr-10 outline-none focus:ring-2 focus:ring-indigo-400/40 text-white"
+              class="appearance-none w-full rounded-2xl bg-slate-200 border border-slate-300 px-4 py-2.5 pr-10 outline-none focus:ring-2 focus:ring-indigo-400/30 text-slate-900 backdrop-blur dark:bg-white/5 dark:border-white/10 dark:focus:ring-indigo-400/40 dark:text-white"
             >
-              <option value="new" class="bg-slate-900 text-white">Newest first</option>
-              <option value="old" class="bg-slate-900 text-white">Oldest first</option>
-              <option value="conf" class="bg-slate-900 text-white">Highest confidence</option>
+              <option value="new" class="bg-white text-slate-900 dark:bg-slate-900 dark:text-white">
+                Newest first
+              </option>
+              <option value="old" class="bg-white text-slate-900 dark:bg-slate-900 dark:text-white">
+                Oldest first
+              </option>
+              <option
+                value="conf"
+                class="bg-white text-slate-900 dark:bg-slate-900 dark:text-white"
+              >
+                Highest confidence
+              </option>
             </select>
             <i
-              class="bi bi-chevron-down absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-white/60"
+              class="bi bi-chevron-down absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500 dark:text-white/60"
             ></i>
           </div>
         </div>
@@ -102,13 +115,15 @@
         <div
           v-for="cap in paged"
           :key="cap.id"
-          class="relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-2xl"
+          class="relative overflow-hidden rounded-3xl border bg-white backdrop-blur-xl shadow-lg border-slate-200 dark:border-white/10 dark:bg-white/5 dark:shadow-2xl"
         >
           <div
-            class="absolute -inset-0.5 rounded-3xl bg-gradient-to-r from-indigo-500/10 to-fuchsia-500/10 blur-2xl"
+            class="absolute -inset-0.5 rounded-3xl bg-gradient-to-r from-indigo-500/10 to-fuchsia-500/10 blur-2xl dark:from-indigo-500/10 dark:to-fuchsia-500/10"
           ></div>
           <div class="relative p-4">
-            <div class="rounded-2xl overflow-hidden border border-white/10 bg-black/40">
+            <div
+              class="rounded-2xl overflow-hidden border bg-white border-slate-200 dark:border-white/10 dark:bg-black/40"
+            >
               <div class="aspect-square grid place-items-center">
                 <img
                   v-if="cap.thumb"
@@ -116,21 +131,25 @@
                   class="w-full h-full object-cover"
                   :alt="`Fingerprint ${cap.id}`"
                 />
-                <div v-else class="h-36 w-full grid place-items-center text-white/50 text-xs">
+                <div
+                  v-else
+                  class="h-36 w-full grid place-items-center text-slate-400 text-xs dark:text-white/50"
+                >
                   Generating…
                 </div>
               </div>
             </div>
             <div class="mt-3 flex items-center justify-between text-sm">
-              <span class="px-2 py-1 rounded-lg border border-white/10 bg-white/5">{{
-                labelFor(cap.finger)
-              }}</span>
+              <span
+                class="px-2 py-1 rounded-lg border bg-white border-slate-200 dark:border-white/10 dark:bg-white/5"
+                >{{ labelFor(cap.finger) }}</span
+              >
               <!-- <span class="text-white/70">{{ cap.confidence }}%</span> -->
             </div>
             <!-- <div class="mt-1 text-xs" :class="confidenceClass(cap.confidence)">
               {{ confidenceLabel(cap.confidence) }}
             </div> -->
-            <div class="mt-2 text-xs text-white/60">
+            <div class="mt-2 text-xs text-slate-600 dark:text-white/60">
               {{ new Date(cap.created_at).toLocaleString() }} • {{ cap.device_name }} ({{
                 cap.device_loc
               }})
@@ -138,20 +157,20 @@
             <div class="mt-3 flex items-center gap-2">
               <button
                 @click="view(cap)"
-                class="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/15 border border-white/10 backdrop-blur text-sm"
+                class="px-3 py-2 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 backdrop-blur text-sm text-slate-900 dark:bg-white/10 dark:hover:bg-white/15 dark:border-white/10 dark:text-white"
               >
                 <i class="bi bi-eye mr-1"></i>View
               </button>
               <button
                 :disabled="!cap.thumb"
                 @click="download(cap)"
-                class="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/15 border border-white/10 backdrop-blur text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                class="px-3 py-2 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 backdrop-blur text-sm disabled:opacity-50 disabled:cursor-not-allowed text-slate-900 dark:bg-white/10 dark:hover:bg-white/15 dark:border-white/10 dark:text-white"
               >
                 <i class="bi bi-download mr-1"></i>Download
               </button>
               <button
                 @click="remove(cap.id)"
-                class="ml-auto px-3 py-2 rounded-xl bg-white/10 hover:bg-white/15 border border-white/10 backdrop-blur text-sm text-rose-300"
+                class="ml-auto px-3 py-2 rounded-xl bg-white hover:bg-rose-50 border border-rose-200 backdrop-blur text-sm text-rose-600 dark:bg-white/10 dark:hover:bg-white/15 dark:border-white/10 dark:text-rose-300"
               >
                 <i class="bi bi-trash mr-1"></i>Delete
               </button>
@@ -161,35 +180,36 @@
       </div>
 
       <!-- Pagination -->
-
       <div
-        class="flex flex-col sm:flex-row items-center justify-between gap-4 px-4 sm:px-6 py-4 border-t border-white/10"
+        class="flex flex-col sm:flex-row items-center justify-between gap-4 px-4 sm:px-6 py-4 border-t border-slate-200 dark:border-white/10"
       >
-        <div class="text-xs text-white/50">Page {{ page }} of {{ totalPages }}</div>
+        <div class="text-xs text-slate-500 dark:text-white/50">
+          Page {{ page }} of {{ totalPages }}
+        </div>
         <div class="flex items-center gap-2">
           <button
-            class="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/15 border border-white/10 backdrop-blur disabled:opacity-50 disabled:cursor-not-allowed"
+            class="px-3 py-2 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 backdrop-blur disabled:opacity-50 disabled:cursor-not-allowed text-slate-900 dark:bg-white/10 dark:hover:bg-white/15 dark:border-white/10 dark:text-white"
             :disabled="page === 1"
             @click="goto(1)"
           >
             <i class="bi bi-chevron-double-left"></i>
           </button>
           <button
-            class="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/15 border border-white/10 backdrop-blur disabled:opacity-50 disabled:cursor-not-allowed"
+            class="px-3 py-2 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 backdrop-blur disabled:opacity-50 disabled:cursor-not-allowed text-slate-900 dark:bg-white/10 dark:hover:bg-white/15 dark:border-white/10 dark:text-white"
             :disabled="page === 1"
             @click="goto(page - 1)"
           >
             <i class="bi bi-chevron-left"></i>
           </button>
           <button
-            class="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/15 border border-white/10 backdrop-blur disabled:opacity-50 disabled:cursor-not-allowed"
+            class="px-3 py-2 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 backdrop-blur disabled:opacity-50 disabled:cursor-not-allowed text-slate-900 dark:bg-white/10 dark:hover:bg-white/15 dark:border-white/10 dark:text-white"
             :disabled="page === totalPages"
             @click="goto(page + 1)"
           >
             <i class="bi bi-chevron-right"></i>
           </button>
           <button
-            class="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/15 border border-white/10 backdrop-blur disabled:opacity-50 disabled:cursor-not-allowed"
+            class="px-3 py-2 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 backdrop-blur disabled:opacity-50 disabled:cursor-not-allowed text-slate-900 dark:bg-white/10 dark:hover:bg-white/15 dark:border-white/10 dark:text-white"
             :disabled="page === totalPages"
             @click="goto(totalPages)"
           >

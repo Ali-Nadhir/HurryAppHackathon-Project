@@ -1,0 +1,63 @@
+{
+  "common": {
+    "appName": "Fingerprint System",
+    "Secure": "Secure, Fast, and",
+    "beautiful": "Beautiful",
+    "desc": "Modren fingerprint system built with Vue 3, Pinia, Tailwind, and SweetAlert2. Smooth animations, glass UI, and production-ready structure.",
+    "StartScan": "Start Scan",
+    "ManageUsers": "Manage Users",
+    "Do": "Do more with your fingerprints",
+    "fast": "Fast actions to test, add and verify scans. Everything is mock-ready and API-friendly.",
+    "card1": "Browse users, trigger scans, delete, and filter—all in one place",
+    "newScan": "Add New Scan",
+    "card2": "Pick a user and capture a new fingerprint. Guided SweetAlert2 stages.",
+    "start": "Add New Scan",
+    "CheckFingerprint": "Check Fingerprint",
+    "card3": "Activate device, scan and preview a captured image.",
+    "checker": "Go To Check",
+    "quick": "Quick Links",
+
+    "home": "Home",
+    "refresh": "Refresh",
+    "reset": "Reset",
+    "save": "Save",
+    "search": "Search",
+    "download": "Download",
+    "delete": "Delete",
+    "scan": "Scan",
+    "status": "Status",
+    "device": "Device",
+    "user": "User",
+    "state": "State",
+    "accuracy": "Accuracy",
+    "latency": "Latency",
+    "pageOf": "Page {page} of {total}",
+    "langToggle": "العربية",
+    "darkToggle": "Toggle color mode"
+  },
+  "routes": {
+    "manageScans": "Manage Scans",
+    "newScan": "New Scan",
+    "checkFingerprint": "Check Fingerprint",
+    "addUser": "Add New User"
+  },
+  "placeholders": {
+    "searchUsers": "Search users by name, email, or ID…",
+    "selectDevice": "Select device…",
+    "selectRole": "Select role…",
+    "notes": "Anything relevant to this scan…",
+    "fullName": "e.g. Ali Hassan",
+    "phone": "e.g. +964 7xx xxx xxxx",
+    "email": "e.g. ali.hassan@example.com",
+    "address": "Street, City, Governorate"
+  },
+  "labels": {
+    "selected": "Selected",
+    "captured": "Captured",
+    "confidence": "Confidence",
+    "person": "Person",
+    "newUser": "New User",
+    "startScan": "Start Scan",
+    "saveUser": "Save User"
+  }
+}

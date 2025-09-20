@@ -1,6 +1,6 @@
 <template>
   <section
-    class="relative min-h-screen overflow-hidden bg-gradient-to-b from-slate-900 via-slate-950 to-black text-white"
+    class="relative min-h-screen overflow-hidden bg-gradient-to-b from-slate-50 via-slate-100 to-white text-slate-900 dark:from-slate-900 dark:via-slate-950 dark:to-black dark:text-white"
   >
     <!-- floating gradient blobs (hero-style) -->
     <div
@@ -24,18 +24,20 @@
               >Scans</span
             >
           </h1>
-          <p class="mt-1 text-white/60">List, search, and trigger scans for users in the system.</p>
+          <p class="mt-1 text-slate-900 dark:text-white/60">
+            List, search, and trigger scans for users in the system.
+          </p>
         </div>
         <div class="flex items-center gap-3">
           <RouterLink
             to="/"
-            class="px-4 py-2 rounded-2xl bg-white/10 hover:bg-white/15 border border-white/10 backdrop-blur text-sm"
+            class="px-4 py-2 rounded-2xl bg-slate-200 hover:bg-slate-400/15 dark:bg-white/10 dark:hover:bg-white/15 border border-slate-900/10 dark:border-white/10 backdrop-blur text-sm"
           >
             <i class="bi bi-house mr-1"></i> Home
           </RouterLink>
 
           <button
-            class="px-4 py-2 rounded-2xl bg-white/10 hover:bg-white/15 border border-white/10 backdrop-blur text-sm"
+            class="px-4 py-2 cursor-pointer rounded-2xl bg-slate-200 hover:bg-slate-400/15 dark:bg-white/10 dark:hover:bg-white/15 border border-slate-900/10 dark:border-white/10 backdrop-blur text-sm"
             @click="refresh"
             :disabled="loading"
           >
@@ -64,13 +66,15 @@
               v-model.trim="q"
               type="text"
               placeholder="Search users by name, email, or ID…"
-              class="w-full rounded-2xl bg-white/5 border border-white/10 backdrop-blur px-4 py-2.5 outline-none focus:ring-2 focus:ring-fuchsia-400/40"
+              class="w-full rounded-2xl bg-slate-200 dark:bg-white/5 border border-slate-900/10 dark:border-white/10 backdrop-blur px-4 py-2 outline-none focus:ring-2 focus:ring-fuchsia-400/40"
               @keyup.enter="applySearch"
             />
-            <i class="bi bi-search absolute right-3 top-1/2 -translate-y-1/2 text-white/50"></i>
+            <i
+              class="bi bi-search absolute right-3 top-1/2 -translate-y-1/2 text-slate-900 dark:text-white/50"
+            ></i>
           </div>
           <button
-            class="px-4 py-2 rounded-2xl bg-white/10 hover:bg-white/15 border border-white/10 backdrop-blur text-sm"
+            class="px-4 py-2 rounded-2xl bg-slate-200 cursor-pointer border-slate-900/10 dark:bg-white/10 dark:hover:bg-white/15 border dark:border-white/10 backdrop-blur text-sm"
             @click="applySearch"
           >
             Search
@@ -79,20 +83,20 @@
         <div class="flex items-center gap-3 justify-start md:justify-end">
           <select
             v-model="status"
-            class="rounded-2xl bg-white/5 border border-white/10 px-3 py-2 backdrop-blur text-sm"
+            class="rounded-2xl bg-slate-200 border-slate-900/10 dark:bg-white/5 border dark:border-white/10 px-3 py-2 backdrop-blur text-sm"
           >
-            <option value="" class="bg-slate-900 text-white">All statuses</option>
-            <option value="active" class="bg-slate-900 text-white">Active</option>
-            <option value="inactive" class="bg-slate-900 text-white">Inactive</option>
-            <option value="locked" class="bg-slate-900 text-white">Locked</option>
+            <option value="" class="dark:bg-slate-900 dark:text-white">All statuses</option>
+            <option value="active" class="dark:bg-slate-900 dark:text-white">Active</option>
+            <option value="inactive" class="dark:bg-slate-900 dark:text-white">Inactive</option>
+            <option value="locked" class="dark:bg-slate-900 dark:text-white">Locked</option>
           </select>
           <select
             v-model.number="perPage"
-            class="rounded-2xl bg-white/5 border border-white/10 px-3 py-2 backdrop-blur text-sm"
+            class="rounded-2xl bg-slate-200 border-slate-900/10 dark:bg-white/5 border dark:border-white/10 px-3 py-2 backdrop-blur text-sm"
           >
-            <option :value="10" class="bg-slate-900 text-white">10 / page</option>
-            <option :value="25" class="bg-slate-900 text-white">25 / page</option>
-            <option :value="50" class="bg-slate-900 text-white">50 / page</option>
+            <option :value="10" class="dark:bg-slate-900 dark:text-white">10 / page</option>
+            <option :value="25" class="dark:bg-slate-900 dark:text-white">25 / page</option>
+            <option :value="50" class="dark:bg-slate-900 dark:text-white">50 / page</option>
           </select>
         </div>
       </div>
@@ -107,7 +111,7 @@
 
         <div class="relative">
           <div class="flex items-center justify-between px-4 sm:px-6 py-4">
-            <div class="text-white/70 text-sm">
+            <div class="text-slate-900 dark:text-white/70 text-sm">
               Showing {{ showingFrom }}–{{ showingTo }} of {{ total }} results
             </div>
             <!-- <div class="text-white/50 text-xs">
@@ -117,13 +121,15 @@
 
           <div class="overflow-x-auto">
             <table class="min-w-full text-left">
-              <thead class="sticky top-0 backdrop-blur bg-slate-900/40">
+              <thead class="sticky top-0 backdrop-blur dark:bg-slate-900/40">
                 <tr class="text-white/70 text-xs uppercase tracking-wide">
-                  <th class="px-4 sm:px-6 py-3">User</th>
-                  <th class="px-4 sm:px-6 py-3">Email</th>
-                  <th class="px-4 sm:px-6 py-3">Last Scan</th>
-                  <th class="px-4 sm:px-6 py-3">Status</th>
-                  <th class="px-4 sm:px-6 py-3 text-right">Actions</th>
+                  <th class="px-4 sm:px-6 py-3 dark:text-white text-slate-900">User</th>
+                  <th class="px-4 sm:px-6 py-3 dark:text-white text-slate-900">Email</th>
+                  <th class="px-4 sm:px-6 py-3 dark:text-white text-slate-900">Last Scan</th>
+                  <th class="px-4 sm:px-6 py-3 dark:text-white text-slate-900">Status</th>
+                  <th class="px-4 sm:px-6 py-3 text-right dark:text-white text-slate-900">
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -153,7 +159,7 @@
                       </div>
                       <div>
                         <div class="font-semibold">{{ u.name }}</div>
-                        <div class="text-white/50 text-xs">ID: {{ u.id }}</div>
+                        <div class="dark:text-white/50 text-slate-900 text-xs">ID: {{ u.id }}</div>
                       </div>
                     </div>
                   </td>
@@ -164,7 +170,7 @@
                       :class="[
                         'px-2.5 py-1 rounded-xl text-xs border backdrop-blur',
                         u.status === 'active' &&
-                          'bg-emerald-500/10 text-emerald-300 border-emerald-400/20',
+                          'dark:bg-emerald-500/10 dark:text-emerald-300 dark:border-emerald-400/20 bg-emerald-600/10 text-emerald-700 border-emerald-500/10',
                         u.status === 'inactive' &&
                           'bg-amber-500/10 text-amber-300 border-amber-400/20',
                         u.status === 'locked' && 'bg-rose-500/10 text-rose-300 border-rose-400/20',
@@ -211,7 +217,9 @@
           <div
             class="flex flex-col sm:flex-row items-center justify-between gap-4 px-4 sm:px-6 py-4 border-t border-white/10"
           >
-            <div class="text-xs text-white/50">Page {{ page }} of {{ totalPages }}</div>
+            <div class="text-xs text-slate-900 dark:text-white/50">
+              Page {{ page }} of {{ totalPages }}
+            </div>
             <div class="flex items-center gap-2">
               <button
                 class="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/15 border border-white/10 backdrop-blur disabled:opacity-50 disabled:cursor-not-allowed"

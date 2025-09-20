@@ -1,16 +1,16 @@
 <template>
   <section
-    class="relative min-h-screen overflow-hidden bg-gradient-to-b from-slate-900 via-slate-950 to-black text-white"
+    class="relative min-h-screen overflow-hidden bg-gradient-to-b from-slate-50 via-slate-100 to-white text-slate-900 dark:from-slate-900 dark:via-slate-950 dark:to-black dark:text-white"
   >
     <!-- floating gradient blobs -->
     <div
-      class="pointer-events-none absolute -top-24 -left-20 h-[28rem] w-[28rem] rounded-full blur-3xl opacity-30 animate-blob mix-blend-soft-light bg-indigo-600"
+      class="pointer-events-none absolute -top-24 -left-20 h-[28rem] w-[28rem] rounded-full blur-3xl opacity-40 mix-blend-multiply bg-indigo-500/50 animate-blob dark:opacity-30 dark:mix-blend-soft-light dark:bg-indigo-600"
     ></div>
     <div
-      class="pointer-events-none absolute top-40 -right-10 h-[30rem] w-[30rem] rounded-full blur-3xl opacity-30 animate-blob animation-delay-2000 mix-blend-soft-light bg-fuchsia-600"
+      class="pointer-events-none absolute top-40 -right-10 h-[30rem] w-[30rem] rounded-full blur-3xl opacity-40 mix-blend-multiply bg-fuchsia-500/50 animate-blob animation-delay-2000 dark:opacity-30 dark:mix-blend-soft-light dark:bg-fuchsia-600"
     ></div>
     <div
-      class="pointer-events-none absolute -bottom-24 left-1/2 -translate-x-1/2 h-[26rem] w-[26rem] rounded-full blur-3xl opacity-25 animate-blob animation-delay-4000 mix-blend-soft-light bg-cyan-500"
+      class="pointer-events-none absolute -bottom-24 left-1/2 -translate-x-1/2 h-[26rem] w-[26rem] rounded-full blur-3xl opacity-30 mix-blend-multiply bg-cyan-400/50 animate-blob animation-delay-4000 dark:opacity-25 dark:mix-blend-soft-light dark:bg-cyan-500"
     ></div>
 
     <div class="relative z-10 container mx-auto px-6 py-10">
@@ -20,17 +20,17 @@
           <h1 class="text-3xl md:text-4xl font-extrabold leading-tight">
             Add
             <span
-              class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-fuchsia-400"
+              class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-fuchsia-600 dark:from-indigo-400 dark:to-fuchsia-400"
               >New User</span
             >
           </h1>
-          <p class="mt-1 text-white/60">
+          <p class="mt-1 text-slate-600 dark:text-white/60">
             Fill the details below to create a user. (Mock submit for now)
           </p>
         </div>
         <RouterLink
           to="/manageScan"
-          class="px-4 py-2 rounded-2xl bg-white/10 hover:bg-white/15 border border-white/10 backdrop-blur text-sm"
+          class="px-4 py-2 rounded-2xl bg-white hover:bg-slate-50 border border-slate-900/10 backdrop-blur text-sm text-slate-900 dark:bg-white/10 dark:hover:bg-white/15 dark:border-white/10 dark:text-white"
         >
           ← Back to Manage Scans
         </RouterLink>
@@ -39,89 +39,115 @@
       <div class="mt-8 grid lg:grid-cols-2 gap-6">
         <!-- Left: Form Card -->
         <div
-          class="relative rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-2xl overflow-hidden p-6"
+          class="relative rounded-3xl border bg-white backdrop-blur-xl shadow-lg overflow-hidden p-6 border-slate-200 dark:bg-white/5 dark:border-white/10 dark:shadow-2xl"
         >
           <div
-            class="absolute -inset-0.5 rounded-3xl bg-gradient-to-r from-indigo-500/20 to-fuchsia-500/20 blur-2xl"
+            class="absolute -inset-0.5 rounded-3xl bg-gradient-to-r from-indigo-500/10 to-fuchsia-500/10 blur-2xl dark:from-indigo-500/20 dark:to-fuchsia-500/20"
           ></div>
           <form class="relative space-y-5" @submit.prevent="submit">
             <!-- Name -->
             <div>
-              <label class="block text-sm text-white/70 mb-1">Full Name</label>
+              <label class="block text-sm text-slate-700 dark:text-white/70 mb-1">Full Name</label>
               <input
                 v-model.trim="form.name"
                 type="text"
                 placeholder="e.g. Ali Hassan"
-                class="w-full rounded-2xl bg-white/5 border border-white/10 backdrop-blur px-4 py-2.5 outline-none focus:ring-2 focus:ring-fuchsia-400/40"
+                class="w-full rounded-2xl bg-white border border-slate-300 shadow-sm px-4 py-2.5 outline-none focus:ring-2 focus:ring-indigo-500/30 text-slate-900 placeholder-slate-400 dark:bg-white/5 dark:border-white/10 dark:focus:ring-fuchsia-400/40 dark:text-white dark:placeholder-white/60"
               />
-              <p v-if="errs.name" class="mt-1 text-xs text-rose-300">{{ errs.name }}</p>
+              <p v-if="errs.name" class="mt-1 text-xs text-rose-600 dark:text-rose-300">
+                {{ errs.name }}
+              </p>
             </div>
 
             <!-- Phone -->
             <div>
-              <label class="block text-sm text-white/70 mb-1">Phone Number</label>
+              <label class="block text-sm text-slate-700 dark:text-white/70 mb-1"
+                >Phone Number</label
+              >
               <input
                 v-model.trim="form.phone"
                 type="tel"
                 placeholder="e.g. +964 7xx xxx xxxx"
-                class="w-full rounded-2xl bg-white/5 border border-white/10 backdrop-blur px-4 py-2.5 outline-none focus:ring-2 focus:ring-fuchsia-400/40"
+                class="w-full rounded-2xl bg-white border border-slate-300 shadow-sm px-4 py-2.5 outline-none focus:ring-2 focus:ring-indigo-500/30 text-slate-900 placeholder-slate-400 dark:bg_white/5 dark:bg-white/5 dark:border-white/10 dark:focus:ring-fuchsia-400/40 dark:text-white dark:placeholder-white/60"
               />
-              <p v-if="errs.phone" class="mt-1 text-xs text-rose-300">{{ errs.phone }}</p>
+              <p v-if="errs.phone" class="mt-1 text-xs text-rose-600 dark:text-rose-300">
+                {{ errs.phone }}
+              </p>
             </div>
 
             <!-- Email -->
             <div>
-              <label class="block text-sm text-white/70 mb-1">Email</label>
+              <label class="block text-sm text-slate-700 dark:text-white/70 mb-1">Email</label>
               <input
                 v-model.trim="form.email"
                 type="email"
                 placeholder="e.g. ali.hassan@example.com"
-                class="w-full rounded-2xl bg-white/5 border border-white/10 backdrop-blur px-4 py-2.5 outline-none focus:ring-2 focus:ring-fuchsia-400/40"
+                class="w-full rounded-2xl bg-white border border-slate-300 shadow-sm px-4 py-2.5 outline-none focus:ring-2 focus:ring-indigo-500/30 text-slate-900 placeholder-slate-400 dark:bg-white/5 dark:border-white/10 dark:focus:ring-fuchsia-400/40 dark:text-white dark:placeholder-white/60"
               />
-              <p v-if="errs.email" class="mt-1 text-xs text-rose-300">{{ errs.email }}</p>
+              <p v-if="errs.email" class="mt-1 text-xs text-rose-600 dark:text-rose-300">
+                {{ errs.email }}
+              </p>
             </div>
 
             <!-- Role -->
             <div>
-              <label class="block text-sm text-white/70 mb-1">Role</label>
+              <label class="block text-sm text-slate-700 dark:text-white/70 mb-1">Role</label>
               <div class="relative">
                 <select
                   v-model="form.role"
-                  class="appearance-none w-full rounded-2xl bg-white/5 border border-white/10 backdrop-blur px-4 py-2.5 pr-10 outline-none focus:ring-2 focus:ring-indigo-400/40 text-white"
+                  class="appearance-none w-full rounded-2xl bg-white border border-slate-300 shadow-sm px-4 py-2.5 pr-10 outline-none focus:ring-2 focus:ring-indigo-400/30 text-slate-900 dark:bg-white/5 dark:border-white/10 dark:text-white dark:focus:ring-indigo-400/40"
                 >
-                  <option disabled value="">Select role…</option>
-                  <option v-for="r in roles" :key="r" :value="r" class="bg-slate-900 text-white">
+                  <option
+                    disabled
+                    value=""
+                    class="bg-white text-slate-900 dark:bg-slate-900 dark:text-white"
+                  >
+                    Select role…
+                  </option>
+                  <option
+                    v-for="r in roles"
+                    :key="r"
+                    :value="r"
+                    class="bg-white text-slate-900 dark:bg-slate-900 dark:text-white"
+                  >
                     {{ r }}
                   </option>
                 </select>
                 <i
-                  class="bi bi-chevron-down absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-white/60"
+                  class="bi bi-chevron-down absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500 dark:text-white/60"
                 ></i>
               </div>
-              <p v-if="errs.role" class="mt-1 text-xs text-rose-300">{{ errs.role }}</p>
+              <p v-if="errs.role" class="mt-1 text-xs text-rose-600 dark:text-rose-300">
+                {{ errs.role }}
+              </p>
             </div>
 
             <!-- Address -->
             <div>
-              <label class="block text-sm text-white/70 mb-1">Address</label>
+              <label class="block text-sm text-slate-700 dark:text-white/70 mb-1">Address</label>
               <textarea
                 v-model.trim="form.address"
                 rows="3"
                 placeholder="Street, City, Governorate"
-                class="w-full rounded-2xl bg-white/5 border border-white/10 backdrop-blur px-4 py-2.5 outline-none focus:ring-2 focus:ring-fuchsia-400/40"
+                class="w-full rounded-2xl bg-white border border-slate-300 shadow-sm px-4 py-2.5 outline-none focus:ring-2 focus:ring-indigo-500/30 text-slate-900 placeholder-slate-400 dark:bg-white/5 dark:border-white/10 dark:focus:ring-fuchsia-400/40 dark:text-white dark:placeholder-white/60"
               ></textarea>
-              <p v-if="errs.address" class="mt-1 text-xs text-rose-300">{{ errs.address }}</p>
+              <p v-if="errs.address" class="mt-1 text-xs text-rose-600 dark:text-rose-300">
+                {{ errs.address }}
+              </p>
             </div>
+
             <!-- age -->
             <div>
-              <label class="block text-sm text-white/70 mb-1">Age</label>
+              <label class="block text-sm text-slate-700 dark:text-white/70 mb-1">Age</label>
               <input
                 v-model.trim="form.age"
                 type="text"
                 placeholder="e.x 20"
-                class="w-full rounded-2xl bg-white/5 border border-white/10 backdrop-blur px-4 py-2.5 outline-none focus:ring-2 focus:ring-fuchsia-400/40"
+                class="w-full rounded-2xl bg-white border border-slate-300 shadow-sm px-4 py-2.5 outline-none focus:ring-2 focus:ring-indigo-500/30 text-slate-900 placeholder-slate-400 dark:bg-white/5 dark:border-white/10 dark:focus:ring-fuchsia-400/40 dark:text-white dark:placeholder-white/60"
               />
-              <p v-if="errs.age" class="mt-1 text-xs text-rose-300">{{ errs.age }}</p>
+              <p v-if="errs.age" class="mt-1 text-xs text-rose-600 dark:text-rose-300">
+                {{ errs.age }}
+              </p>
             </div>
 
             <!-- Actions -->
@@ -129,14 +155,14 @@
               <button
                 type="button"
                 @click="reset"
-                class="px-4 py-2 rounded-2xl bg-white/10 hover:bg-white/15 border border-white/10 backdrop-blur text-sm"
+                class="px-4 py-2 rounded-2xl cursor-pointer bg-white hover:bg-slate-50 border border-slate-900/10 backdrop-blur text-sm text-slate-900 dark:bg-white/10 dark:hover:bg-white/15 dark:border-white/10 dark:text-white"
               >
                 Reset
               </button>
               <button
                 type="submit"
                 :disabled="submitting || !isValid"
-                class="px-4 py-2 rounded-2xl bg-white text-slate-900 font-semibold shadow-lg hover:shadow-2xl text-sm disabled:opacity-60 disabled:cursor-not-allowed"
+                class="cursor-pointer px-4 py-2 rounded-2xl bg-slate-900 text-white font-semibold shadow-lg hover:shadow-2xl text-sm disabled:opacity-60 disabled:cursor-not-allowed dark:bg-white dark:text-slate-900"
               >
                 Save User
               </button>
@@ -146,42 +172,58 @@
 
         <!-- Right: Live Card / Preview -->
         <div
-          class="relative rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-2xl overflow-hidden p-6"
+          class="relative rounded-3xl border bg-white backdrop-blur-xl shadow-lg overflow-hidden p-6 border-slate-200 dark:bg-white/5 dark:border-white/10 dark:shadow-2xl"
         >
           <div
-            class="absolute -inset-0.5 rounded-3xl bg-gradient-to-r from-indigo-500/20 to-fuchsia-500/20 blur-2xl"
+            class="absolute -inset-0.5 rounded-3xl bg-gradient-to-r from-indigo-500/10 to-fuchsia-500/10 blur-2xl dark:from-indigo-500/20 dark:to-fuchsia-500/20"
           ></div>
           <div class="relative">
-            <h3 class="text-lg font-semibold mb-4">Live Preview</h3>
+            <h3 class="text-lg font-semibold mb-4 text-slate-900 dark:text-white">Live Preview</h3>
 
             <div class="grid gap-4">
               <div class="flex items-center gap-3">
                 <div
-                  class="size-11 rounded-2xl grid place-items-center bg-white/10 border border-white/10 text-sm font-bold"
+                  class="size-11 rounded-2xl grid place-items-center bg-slate-900/5 border border-slate-900/10 text-sm font-bold dark:bg-white/10 dark:border-white/10"
                 >
                   {{ initials(form.name) || '—' }}
                 </div>
                 <div>
-                  <div class="font-semibold">{{ form.name || 'Full Name' }}</div>
-                  <div class="text-white/50 text-xs">{{ form.role || 'Role' }}</div>
+                  <div class="font-semibold text-slate-900 dark:text-white">
+                    {{ form.name || 'Full Name' }}
+                  </div>
+                  <div class="text-slate-500 text-xs dark:text-white/50">
+                    {{ form.role || 'Role' }}
+                  </div>
                 </div>
               </div>
 
-              <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
-                <p class="text-xs text-white/60">Phone</p>
-                <p class="text-lg font-semibold">{{ form.phone || '—' }}</p>
+              <div
+                class="rounded-2xl border bg-white p-4 border-slate-200 dark:border-white/10 dark:bg-white/5"
+              >
+                <p class="text-xs text-slate-600 dark:text-white/60">Phone</p>
+                <p class="text-lg font-semibold text-slate-900 dark:text-white">
+                  {{ form.phone || '—' }}
+                </p>
               </div>
-              <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
-                <p class="text-xs text-white/60">Email</p>
-                <p class="text-lg font-semibold truncate">{{ form.email || '—' }}</p>
+              <div
+                class="rounded-2xl border bg-white p-4 border-slate-200 dark:border-white/10 dark:bg-white/5"
+              >
+                <p class="text-xs text-slate-600 dark:text-white/60">Email</p>
+                <p class="text-lg font-semibold truncate text-slate-900 dark:text-white">
+                  {{ form.email || '—' }}
+                </p>
               </div>
-              <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
-                <p class="text-xs text-white/60">Address</p>
-                <p class="text-sm">{{ form.address || '—' }}</p>
+              <div
+                class="rounded-2xl border bg-white p-4 border-slate-200 dark:border-white/10 dark:bg-white/5"
+              >
+                <p class="text-xs text-slate-600 dark:text-white/60">Address</p>
+                <p class="text-sm text-slate-900 dark:text-white">{{ form.address || '—' }}</p>
               </div>
-              <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
-                <p class="text-xs text-white/60">Age</p>
-                <p class="text-sm">{{ form.age || '—' }}</p>
+              <div
+                class="rounded-2xl border bg-white p-4 border-slate-200 dark:border-white/10 dark:bg-white/5"
+              >
+                <p class="text-xs text-slate-600 dark:text-white/60">Age</p>
+                <p class="text-sm text-slate-900 dark:text-white">{{ form.age || '—' }}</p>
               </div>
 
               <!-- decorative fingerprint -->

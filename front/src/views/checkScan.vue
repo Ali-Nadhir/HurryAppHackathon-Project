@@ -1,16 +1,16 @@
 <template>
   <section
-    class="relative min-h-screen overflow-hidden bg-gradient-to-b from-slate-900 via-slate-950 to-black text-white"
+    class="relative min-h-screen overflow-hidden bg-gradient-to-b from-slate-50 via-slate-100 to-white text-slate-900 dark:from-slate-900 dark:via-slate-950 dark:to-black dark:text-white"
   >
     <!-- floating gradient blobs -->
     <div
-      class="pointer-events-none absolute -top-24 -left-20 h-[28rem] w-[28rem] rounded-full blur-3xl opacity-30 animate-blob mix-blend-soft-light bg-indigo-600"
+      class="pointer-events-none absolute -top-24 -left-20 h-[28rem] w-[28rem] rounded-full blur-3xl opacity-40 mix-blend-multiply bg-indigo-500/50 animate-blob dark:opacity-30 dark:mix-blend-soft-light dark:bg-indigo-600"
     ></div>
     <div
-      class="pointer-events-none absolute top-40 -right-10 h-[30rem] w-[30rem] rounded-full blur-3xl opacity-30 animate-blob animation-delay-2000 mix-blend-soft-light bg-fuchsia-600"
+      class="pointer-events-none absolute top-40 -right-10 h-[30rem] w-[30rem] rounded-full blur-3xl opacity-40 mix-blend-multiply bg-fuchsia-500/50 animate-blob animation-delay-2000 dark:opacity-30 dark:mix-blend-soft-light dark:bg-fuchsia-600"
     ></div>
     <div
-      class="pointer-events-none absolute -bottom-24 left-1/2 -translate-x-1/2 h-[26rem] w-[26rem] rounded-full blur-3xl opacity-25 animate-blob animation-delay-4000 mix-blend-soft-light bg-cyan-500"
+      class="pointer-events-none absolute -bottom-24 left-1/2 -translate-x-1/2 h-[26rem] w-[26rem] rounded-full blur-3xl opacity-30 mix-blend-multiply bg-cyan-400/50 animate-blob animation-delay-4000 dark:opacity-25 dark:mix-blend-soft-light dark:bg-cyan-500"
     ></div>
 
     <div class="relative z-10 container mx-auto px-6 py-10">
@@ -20,17 +20,17 @@
           <h1 class="text-3xl md:text-4xl font-extrabold leading-tight">
             Check
             <span
-              class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-fuchsia-400"
+              class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-fuchsia-600 dark:from-indigo-400 dark:to-fuchsia-400"
               >Fingerprint</span
             >
           </h1>
-          <p class="mt-1 text-white/60">
+          <p class="mt-1 text-slate-600 dark:text-white/60">
             Activate the device, scan, and preview the captured image (mock flow).
           </p>
         </div>
         <RouterLink
           to="/manageScan"
-          class="px-4 py-2 rounded-2xl bg-white/10 hover:bg-white/15 border border-white/10 backdrop-blur text-sm"
+          class="px-4 py-2 rounded-2xl bg-white hover:bg-slate-50 border border-slate-900/10 backdrop-blur text-sm text-slate-900 dark:bg-white/10 dark:hover:bg-white/15 dark:border-white/10 dark:text-white"
           >← Back to Manage Scans</RouterLink
         >
       </div>
@@ -38,103 +38,113 @@
       <div class="mt-8 grid lg:grid-cols-2 gap-6">
         <!-- Left: Scan Controls Card -->
         <div
-          class="relative rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-2xl overflow-hidden p-6"
+          class="relative rounded-3xl border bg-white backdrop-blur-xl shadow-lg overflow-hidden p-6 border-slate-200 dark:border-white/10 dark:bg-white/5 dark:shadow-2xl"
         >
           <div
-            class="absolute -inset-0.5 rounded-3xl bg-gradient-to-r from-indigo-500/20 to-fuchsia-500/20 blur-2xl"
+            class="absolute -inset-0.5 rounded-3xl bg-gradient-to-r from-indigo-500/10 to-fuchsia-500/10 blur-2xl dark:from-indigo-500/20 dark:to-fuchsia-500/20"
           ></div>
           <div class="relative">
-            <h3 class="text-lg font-semibold mb-4">Device</h3>
+            <h3 class="text-lg font-semibold mb-4 text-slate-900 dark:text-white">Device</h3>
 
-            <div class="grid sm:grid-cols-2 gap-4">
+            <div class="grid sm:grid-cols-1 gap-4">
               <div class="relative">
-                <label class="block text-sm text-white/70 mb-1">Select mock device</label>
+                <label class="block text-sm text-slate-700 dark:text-white/70 mb-1"
+                  >Select device</label
+                >
                 <select
                   v-model="deviceId"
-                  class="appearance-none w-full rounded-2xl bg-white/5 border border-white/10 backdrop-blur px-4 py-2.5 pr-10 outline-none focus:ring-2 focus:ring-indigo-400/40 text-white"
+                  class="appearance-none w-full rounded-2xl bg-white border border-slate-300 shadow-sm px-4 py-2.5 pr-10 outline-none focus:ring-2 focus:ring-indigo-400/30 text-slate-900 dark:bg-white/5 dark:border-white/10 dark:focus:ring-indigo-400/40 dark:text-white"
                 >
-                  <option disabled value="">Select device…</option>
+                  <option
+                    disabled
+                    value=""
+                    class="bg-white text-slate-900 dark:bg-slate-900 dark:text-white"
+                  >
+                    Select device…
+                  </option>
                   <option
                     v-for="d in devices"
                     :key="d.id"
                     :value="d.id"
-                    class="bg-slate-900 text-white"
+                    class="bg-white text-slate-900 dark:bg-slate-900 dark:text-white"
                   >
                     {{ d.name }} • {{ d.location }}
                   </option>
                 </select>
                 <i
-                  class="bi bi-chevron-down absolute right-3 top-9 pointer-events-none text-white/60"
+                  class="bi bi-chevron-down absolute right-3 top-9 pointer-events-none text-slate-500 dark:text-white/60"
                 ></i>
               </div>
 
-              <div>
-                <label class="block text-sm text-white/70 mb-1">Mode</label>
+              <!-- <div>
+                <label class="block text-sm text-slate-700 dark:text-white/70 mb-1">Mode</label>
                 <select
                   v-model="mode"
-                  class="appearance-none w-full rounded-2xl bg-white/5 border border-white/10 backdrop-blur px-4 py-2.5 pr-10 outline-none focus:ring-2 focus:ring-fuchsia-400/40 text-white"
+                  class="appearance-none w-full rounded-2xl bg-white border border-slate-300 shadow-sm px-4 py-2.5 pr-10 outline-none focus:ring-2 focus:ring-fuchsia-400/30 text-slate-900 dark:bg-white/5 dark:border-white/10 dark:focus:ring-fuchsia-400/40 dark:text-white"
                 >
-                  <option class="bg-slate-900 text-white" value="quick">Quick</option>
-                  <option class="bg-slate-900 text-white" value="detailed">Detailed</option>
+                  <option class="bg-white text-slate-900 dark:bg-slate-900 dark:text-white" value="quick">Quick</option>
+                  <option class="bg-white text-slate-900 dark:bg-slate-900 dark:text-white" value="detailed">Detailed</option>
                 </select>
-              </div>
+              </div> -->
             </div>
 
             <div class="mt-6 flex items-center gap-3">
               <button
                 :disabled="loading"
                 @click="scan"
-                class="px-5 py-2.5 rounded-2xl bg-white text-slate-900 font-semibold shadow-lg hover:shadow-2xl disabled:opacity-60 disabled:cursor-not-allowed"
+                class="px-5 py-2.5 rounded-2xl bg-slate-900 text-white font-semibold shadow-lg hover:shadow-2xl disabled:opacity-60 disabled:cursor-not-allowed dark:bg-white dark:text-slate-900"
               >
                 <i class="bi bi-fingerprint mr-1"></i> Scan
               </button>
               <button
                 :disabled="loading || !capturedImage"
                 @click="download"
-                class="px-5 py-2.5 rounded-2xl bg-white/10 hover:bg-white/15 border border-white/10 backdrop-blur text-sm disabled:opacity-60 disabled:cursor-not-allowed"
+                class="px-5 py-2.5 rounded-2xl bg-white hover:bg-slate-50 border border-slate-900/10 backdrop-blur text-sm text-slate-900 disabled:opacity-60 disabled:cursor-not-allowed dark:bg-white/10 dark:hover:bg-white/15 dark:border-white/10 dark:text-white"
               >
                 <i class="bi bi-download mr-1"></i> Download PNG
               </button>
               <button
                 :disabled="loading || !capturedImage"
                 @click="reset"
-                class="px-5 py-2.5 rounded-2xl bg-white/10 hover:bg-white/15 border border-white/10 backdrop-blur text-sm disabled:opacity-60 disabled:cursor-not-allowed"
+                class="px-5 py-2.5 rounded-2xl bg-white hover:bg-slate-50 border border-slate-900/10 backdrop-blur text-sm text-slate-900 disabled:opacity-60 disabled:cursor-not-allowed dark:bg-white/10 dark:hover:bg-white/15 dark:border-white/10 dark:text-white"
               >
                 <i class="bi bi-arrow-clockwise mr-1"></i> Reset
               </button>
             </div>
 
             <!-- Meta info -->
-            <div class="mt-6 grid sm:grid-cols-3 gap-4">
-              <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
-                <p class="text-xs text-white/60">State</p>
-                <p class="text-lg font-semibold">{{ stateLabel }}</p>
+            <div class="mt-6 grid sm:grid-cols-2 gap-4">
+              <div
+                class="rounded-2xl border bg-white p-4 border-slate-200 dark:border-white/10 dark:bg-white/5"
+              >
+                <p class="text-xs text-slate-600 dark:text-white/60">State</p>
+                <p class="text-lg font-semibold text-slate-900 dark:text-white">{{ stateLabel }}</p>
               </div>
-              <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
-                <p class="text-xs text-white/60">Device</p>
-                <p class="text-lg font-semibold truncate">{{ deviceLabel }}</p>
+              <div
+                class="rounded-2xl border bg-white p-4 border-slate-200 dark:border-white/10 dark:bg-white/5"
+              >
+                <p class="text-xs text-slate-600 dark:text-white/60">Device</p>
+                <p class="text-lg font-semibold truncate text-slate-900 dark:text-white">
+                  {{ deviceLabel }}
+                </p>
               </div>
-              <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
-                <p class="text-xs text-white/60">Mode</p>
-                <p class="text-lg font-semibold capitalize">{{ mode }}</p>
-              </div>
+              <!-- <div class="rounded-2xl border bg-white p-4 border-slate-200 dark:border-white/10 dark:bg-white/5">
+                <p class="text-xs text-slate-600 dark:text-white/60">Mode</p>
+                <p class="text-lg font-semibold capitalize text-slate-900 dark:text-white">{{ mode }}</p>
+              </div> -->
             </div>
-
-            <p class="mt-4 text-xs text-white/50">
-              Demo-only. Real device API will be wired later.
-            </p>
           </div>
         </div>
 
         <!-- Right: Live/Result Card -->
         <div
-          class="relative rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-2xl overflow-hidden p-6"
+          class="relative rounded-3xl border bg-white backdrop-blur-xl shadow-lg overflow-hidden p-6 border-slate-200 dark:border-white/10 dark:bg-white/5 dark:shadow-2xl"
         >
           <div
-            class="absolute -inset-0.5 rounded-3xl bg-gradient-to-r from-indigo-500/20 to-fuchsia-500/20 blur-2xl"
+            class="absolute -inset-0.5 rounded-3xl bg-gradient-to-r from-indigo-500/10 to-fuchsia-500/10 blur-2xl dark:from-indigo-500/20 dark:to-fuchsia-500/20"
           ></div>
           <div class="relative">
-            <h3 class="text-lg font-semibold mb-4">Live Preview</h3>
+            <h3 class="text-lg font-semibold mb-4 text-slate-900 dark:text-white">Live Preview</h3>
 
             <div v-if="!capturedImage" class="mx-auto size-80 grid place-items-center">
               <!-- animated fingerprint while scanning or idle -->
@@ -166,28 +176,49 @@
             </div>
 
             <div v-else class="mx-auto max-w-md">
-              <div class="rounded-3xl overflow-hidden border border-white/10 shadow-xl bg-black/40">
+              <div
+                class="rounded-3xl overflow-hidden border border-slate-200 shadow-xl bg-white dark:border-white/10 dark:bg-black/40"
+              >
                 <img :src="capturedImage" alt="Captured fingerprint" class="w-full h-auto" />
               </div>
               <div class="mt-4 grid grid-cols-2 gap-4">
-                <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
-                  <p class="text-xs text-white/60">Captured</p>
-                  <p class="text-lg font-semibold">{{ capturedAtLabel }}</p>
+                <div
+                  class="rounded-2xl border bg-white p-4 border-slate-200 dark:border-white/10 dark:bg-white/5"
+                >
+                  <p class="text-xs text-slate-600 dark:text-white/60">Captured</p>
+                  <p class="text-lg font-semibold text-slate-900 dark:text-white">
+                    {{ capturedAtLabel }}
+                  </p>
                 </div>
-                <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
-                  <p class="text-xs text-white/60">Confidence</p>
-                  <p class="text-lg font-semibold">{{ confidence }}%</p>
+                <div
+                  class="rounded-2xl border bg-white p-4 border-slate-200 dark:border-white/10 dark:bg_white/5 dark:bg-white/5"
+                >
+                  <p class="text-xs text-slate-600 dark:text-white/60">Confidence</p>
+                  <p class="text-lg font-semibold text-slate-900 dark:text-white">
+                    {{ confidence }}%
+                  </p>
                 </div>
-                <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
-                  <p class="text-xs text-white/60">Person</p>
-                  <p class="text-lg font-semibold">{{ name || '—' }}</p>
+                <div
+                  class="rounded-2xl border bg-white p-4 border-slate-200 dark:border-white/10 dark:bg-white/5"
+                >
+                  <p class="text-xs text-slate-600 dark:text-white/60">Person</p>
+                  <p class="text-lg font-semibold text-slate-900 dark:text-white">
+                    {{ name || '—' }}
+                  </p>
                 </div>
-                <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
-                  <p class="text-xs text-white/60">Latency</p>
-                  <p class="text-lg font-semibold">{{ latencyLabel }}</p>
+                <div
+                  class="rounded-2xl border bg-white p-4 border-slate-200 dark:border-white/10 dark:bg-white/5"
+                >
+                  <p class="text-xs text-slate-600 dark:text-white/60">Latency</p>
+                  <p class="text-lg font-semibold text-slate-900 dark:text-white">
+                    {{ latencyLabel }}
+                  </p>
                 </div>
               </div>
-              <div class="mt-5 text-xs text-center" :class="confidenceClass(confidence)">
+              <div
+                class="mt-5 text-xs text-center text-slate-600 dark:text-white/60"
+                :class="confidenceClass(confidence)"
+              >
                 {{ confidenceLabel(confidence) }}
               </div>
             </div>
@@ -224,12 +255,13 @@ interface DeviceDto {
   location: string
 }
 const devices: DeviceDto[] = [
+  { id: 'usb-3', name: 'R307', location: 'Front Desk' },
   { id: 'usb-1', name: 'ZK-U450', location: 'Front Desk' },
   { id: 'usb-2', name: 'SecuScan-2', location: 'Server Room' },
   { id: 'ip-10.0.0.12', name: 'BioNet-Edge', location: 'HR Office' },
 ]
 
-const deviceId = ref('')
+const deviceId = ref<string>('usb-3')
 const mode = ref<'quick' | 'detailed'>('quick')
 const loading = ref(false)
 const scanning = ref(false)

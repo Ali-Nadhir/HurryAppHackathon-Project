@@ -1,6 +1,6 @@
 <template>
   <section
-    class="relative min-h-screen overflow-hidden bg-gradient-to-b from-slate-900 via-slate-950 to-black text-white"
+    class="relative min-h-screen overflow-hidden bg-gradient-to-b from-slate-50 via-slate-100 to-white text-slate-900 dark:from-slate-900 dark:via-slate-950 dark:to-black dark:text-white"
   >
     <!-- floating gradient blobs -->
     <div
@@ -24,13 +24,13 @@
               >Scan</span
             >
           </h1>
-          <p class="mt-1 text-white/60">
+          <p class="mt-1 text-slate-900 dark:text-white/60">
             Select a user, choose a finger, pick a device — then run a mock scan.
           </p>
         </div>
         <RouterLink
           to="/manageScan"
-          class="px-4 py-2 rounded-2xl bg-white/10 hover:bg-white/15 border border-white/10 backdrop-blur text-sm"
+          class="px-4 py-2 rounded-2xl bg-slate-200 border-slate-900/10 dark:bg-white/10 dark:hover:bg-white/15 border hover:bg-slate-400/15 dark:border-white/10 backdrop-blur text-sm"
         >
           ← Back to Manage Scans
         </RouterLink>
@@ -39,14 +39,14 @@
       <div class="mt-8 grid lg:grid-cols-2 gap-6">
         <!-- Left: Form Card (user + device + finger selector + hand preview) -->
         <div
-          class="relative rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-2xl overflow-hidden p-6"
+          class="relative rounded-3xl border border-slate-900/10 dark:border-white/10 bg-white/5 backdrop-blur-xl shadow-2xl overflow-hidden p-6"
         >
           <div
             class="absolute -inset-0.5 rounded-3xl bg-gradient-to-r from-indigo-500/20 to-fuchsia-500/20 blur-2xl"
           ></div>
           <div class="relative">
             <!-- User Autocomplete -->
-            <label class="block text-sm text-white/70 mb-1">User</label>
+            <label class="block text-sm text-slate-900 dark:text-white/70 mb-1">User</label>
             <div class="relative">
               <input
                 v-model.trim="userQuery"
@@ -55,10 +55,12 @@
                 placeholder="Search user by name or ID…"
                 class="w-full rounded-2xl bg-white/5 border border-white/10 backdrop-blur px-4 py-2.5 outline-none focus:ring-2 focus:ring-fuchsia-400/40"
               />
-              <i class="bi bi-search absolute right-3 top-1/2 -translate-y-1/2 text-white/50"></i>
+              <i
+                class="bi bi-search absolute right-3 top-1/2 -translate-y-1/2 dark:text-white/50"
+              ></i>
               <ul
                 v-if="showUserList"
-                class="absolute z-10 mt-2 w-full max-h-64 overflow-auto rounded-2xl border border-white/10 bg-slate-900/80 backdrop-blur"
+                class="absolute z-10 mt-2 w-full max-h-64 overflow-auto rounded-2xl border border-white/10 bg-white/5 dark:bg-slate-900/80 backdrop-blur"
               >
                 <li
                   v-for="u in filteredUsers"
@@ -74,11 +76,11 @@
                     </div>
                     <div>
                       <div class="text-sm font-semibold">{{ u.name }}</div>
-                      <div class="text-white/50 text-xs">{{ u.id }} • {{ u.email }}</div>
+                      <div class="dark:text-white/50 text-xs">{{ u.id }} • {{ u.email }}</div>
                     </div>
                   </div>
                 </li>
-                <li v-if="filteredUsers.length === 0" class="px-4 py-3 text-white/50 text-sm">
+                <li v-if="filteredUsers.length === 0" class="px-4 py-3 bg:text-white/50 text-sm">
                   No results
                 </li>
               </ul>
@@ -87,58 +89,60 @@
             <!-- Selected User Chip -->
             <div
               v-if="selectedUser"
-              class="mt-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-white/10 border border-white/10"
+              class="mt-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-slate-300 border-slate-900/15 dark:bg-white/10 border dark:border-white/10"
             >
               <span class="text-sm">{{ selectedUser.name }} ({{ selectedUser.id }})</span>
               <button class="text-white/60 hover:text-white" @click="clearUser">
-                <i class="bi bi-x"></i>
+                <i class="bi bi-x text-white dark:text-slate-900 cursor-pointer"></i>
               </button>
             </div>
 
             <!-- Device -->
             <div class="mt-6">
-              <label class="block text-sm text-white/70 mb-1">Device</label>
+              <label class="block text-sm text-slate-900 dark:text-white/70 mb-1">Device</label>
               <div class="relative">
                 <select
                   v-model="deviceId"
-                  class="appearance-none w-full rounded-2xl bg-white/5 border border-white/10 backdrop-blur px-4 py-2.5 pr-10 outline-none focus:ring-2 focus:ring-indigo-400/40 text-white"
+                  class="appearance-none w-full rounded-2xl bg-white/5 border border-white/10 backdrop-blur px-4 py-2.5 pr-10 outline-none focus:ring-2 focus:ring-indigo-400/40 dark:text-white"
                 >
-                  <option disabled value="">Select device…</option>
+                  <option disabled value="" class="dark:text-white text-slate-900 bg-slate-200">
+                    Select device…
+                  </option>
                   <option
                     v-for="d in devices"
                     :key="d.id"
                     :value="d.id"
-                    class="bg-slate-900 text-white"
+                    class="dark:sbg-slate-900 dark:text-white text-slate-900 bg-slate-200"
                   >
                     {{ d.name }} • {{ d.location }}
                   </option>
                 </select>
                 <i
-                  class="bi bi-chevron-down absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-white/60"
+                  class="bi bi-chevron-down absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none dark:text-white/60"
                 ></i>
               </div>
             </div>
 
             <!-- Finger selection -->
             <div class="mt-6">
-              <label class="block text-sm text-white/70 mb-2">Finger</label>
+              <label class="block text-sm text-slate-900 dark:text-white/70 mb-2">Finger</label>
               <div class="grid grid-cols-2 sm:grid-cols-5 gap-2">
                 <button
                   v-for="f in FINGERS"
                   :key="f.key"
                   @click="selectFinger(f)"
                   :class="[
-                    'px-3 py-2 rounded-xl border text-xs backdrop-blur transition',
-                    selectedFinger.key === f.key
+                    'px-3 py-2 rounded-xl border text-xs backdrop-blur transition dark:text-white cursor-pointer',
+                    selectedFinger?.key === f.key
                       ? 'bg-white text-slate-900 border-white/30 shadow'
-                      : 'bg-white/5 text-white/80 border-white/10 hover:bg-white/10',
+                      : 'bg-white/5 dark:text-white/80 border-white/10 hover:bg-slate-200 dark:hover:bg-white/10',
                   ]"
                 >
                   {{ f.short }}
                 </button>
               </div>
-              <p class="mt-2 text-xs text-white/60">
-                Selected: <span class="font-semibold">{{ fingerLabel }}</span>
+              <p class="mt-2 text-xs dark:text-white/60">
+                Selected: <span class="font-semibold dark:text-white">{{ fingerLabel }}</span>
               </p>
 
               <!-- Hand preview (small SVG under buttons) -->
@@ -197,7 +201,7 @@
 
             <!-- Notes -->
             <div class="mt-6">
-              <label class="block text-sm text-white/70 mb-1">Notes (optional)</label>
+              <label class="block text-sm dark:text-white/70 mb-1">Notes (optional)</label>
               <textarea
                 v-model.trim="notes"
                 rows="3"
@@ -274,24 +278,24 @@
 
               <div class="mt-6 grid grid-cols-2 gap-4">
                 <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
-                  <p class="text-xs text-white/60">State</p>
+                  <p class="text-xs dark:text-white/60">State</p>
                   <p class="text-lg font-semibold">{{ stateLabel }}</p>
                 </div>
                 <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
-                  <p class="text-xs text-white/60">Device</p>
+                  <p class="text-xs dark:text-white/60">Device</p>
                   <p class="text-lg font-semibold truncate">{{ deviceLabel }}</p>
                 </div>
                 <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
-                  <p class="text-xs text-white/60">User</p>
+                  <p class="text-xs dark:text-white/60">User</p>
                   <p class="text-lg font-semibold truncate">{{ userLabel }}</p>
                 </div>
                 <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
-                  <p class="text-xs text-white/60">Match</p>
+                  <p class="text-xs dark:text-white/60">Accuracy</p>
                   <p class="text-lg font-semibold">{{ matchPct }}%</p>
                 </div>
               </div>
 
-              <p class="mt-6 text-center text-xs text-white/50">Demo-only. No real devices yet.</p>
+              <!-- <p class="mt-6 text-center text-xs text-white/50">Demo-only. No real devices yet.</p> -->
             </div>
           </div>
         </div>
@@ -401,16 +405,20 @@ const ALL_USERS: UserDto[] = Array.from({ length: 120 }).map((_, i) => {
 })
 
 const devices: DeviceDto[] = [
+  { id: 'usb-3', name: 'R307', location: 'Front Desk' },
   { id: 'usb-1', name: 'ZK-U450', location: 'Front Desk' },
   { id: 'usb-2', name: 'SecuScan-2', location: 'Server Room' },
   { id: 'ip-10.0.0.12', name: 'BioNet-Edge', location: 'HR Office' },
 ]
 
 // --- form state ---
+type FingerOption = (typeof FINGERS)[number]
+const selectedFinger = ref<FingerOption | null>(null)
+
 const userQuery = ref('')
 const selectedUser = ref<UserDto | null>(null)
-const selectedFinger = ref<FingerKey | {}>({})
-const deviceId = ref<string>('')
+
+const deviceId = ref<string>('usb-3')
 const notes = ref('')
 const loading = ref(false)
 //const users = userStore.allUsers
@@ -430,9 +438,7 @@ const matchPct = ref(0)
 const stateLabel = computed(() => (scanning.value ? 'Scanning' : 'Idle'))
 const userLabel = computed(() => (selectedUser.value ? selectedUser.value.name : '—'))
 const deviceLabel = computed(() => devices.find((d) => d.id === deviceId.value)?.name || '—')
-const fingerLabel = computed(
-  () => FINGERS.find((f) => f.key === (selectedFinger.value as any))?.label || '—',
-)
+const fingerLabel = computed(() => selectedFinger.value?.label ?? '—')
 
 const selectFinger = (f) => {
   imageUrl = ''
@@ -461,7 +467,7 @@ function initials(name: string) {
 }
 
 function hl(key: FingerKey) {
-  return selectedFinger.value.key === key
+  return selectedFinger.value?.key === key
     ? 'fill-[url(#fg)] drop-shadow-[0_0_16px_rgba(99,102,241,0.35)]'
     : 'fill-transparent'
 }

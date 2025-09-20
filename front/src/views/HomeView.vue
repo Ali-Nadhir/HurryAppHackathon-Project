@@ -5,19 +5,13 @@
     <finger-print-hero />
 
     <section class="relative py-16 md:py-24">
-      <!-- floating blobs echo -->
-      <div
-        class="pointer-events-none absolute -top-24 -left-20 h-[22rem] w-[22rem] rounded-full blur-3xl opacity-25 animate-blob mix-blend-soft-light bg-fuchsia-600"
-      ></div>
-      <div
-        class="pointer-events-none absolute -bottom-24 right-0 h-[22rem] w-[22rem] rounded-full blur-3xl opacity-20 animate-blob animation-delay-2000 mix-blend-soft-light bg-cyan-500"
-      ></div>
-
       <div class="relative z-10 container mx-auto px-6">
         <header class="text-center max-w-2xl mx-auto">
-          <h2 class="text-2xl md:text-3xl font-extrabold">Do more with your fingerprints</h2>
-          <p class="text-white/60 mt-2">
-            Fast actions to test, add and verify scans. Everything is mock-ready and API-friendly.
+          <h2 class="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white">
+            {{ $t('common.Do') }}
+          </h2>
+          <p class="text-slate-600 dark:text-white/60 mt-2">
+            {{ $t('common.fast') }}
           </p>
         </header>
 
@@ -26,23 +20,25 @@
           <!-- Card: Check Fingerprint -->
           <RouterLink
             to="/checkScan"
-            class="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-2xl transition-transform hover:-translate-y-0.5 hover:shadow-[0_30px_60px_rgba(0,0,0,0.35)];"
+            class="group relative overflow-hidden rounded-3xl border border-slate-900/10 dark:bg-white/5 dark:shadow-2xl dark:border-white/10 bg-white/5 backdrop-blur-xl shadow-2xl transition-transform hover:-translate-y-0.5 dark:hover:shadow-[0_30px_60px_rgba(0,0,0,0.35)];"
           >
             <div class="feature-glow"></div>
             <div class="relative p-6">
               <div
-                class="size-11 rounded-2xl grid place-items-center bg-white/10 border border-white/10"
+                class="size-11 rounded-2xl grid place-items-center bg-slate-900/10 dark:bg-white/10 border-slate900/10 border dark:border-white/10"
               >
                 <i class="bi bi-shield-check text-xl"></i>
               </div>
-              <h3 class="mt-4 text-lg font-semibold">Check Fingerprint</h3>
-              <p class="mt-1 text-sm text-white/60">
-                Activate device, scan and preview a captured image (mock now, API later).
+              <h3 class="mt-4 text-lg font-semibold text-slate-900 dark:text-white">
+                {{ $t('common.CheckFingerprint') }}
+              </h3>
+              <p class="mt-1 text-sm text-slate-600 dark:text-white/60">
+                {{ $t('common.card3') }}
               </p>
               <div
-                class="mt-5 inline-flex items-center gap-1 text-sm text-indigo-300 group-hover:gap-2 transition-all"
+                class="mt-5 inline-flex items-center gap-1 text-sm text-indigo-600 dark:text-indigo-300 group-hover:gap-2 transition-all"
               >
-                Go to checker <i class="bi bi-arrow-right-short text-xl"></i>
+                {{ $t('common.checker') }} <i class="bi bi-arrow-right-short text-xl"></i>
               </div>
             </div>
           </RouterLink>
@@ -50,23 +46,25 @@
           <!-- Card: Add New Scan -->
           <RouterLink
             to="/newScan"
-            class="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-2xl transition-transform hover:-translate-y-0.5 hover:shadow-[0_30px_60px_rgba(0,0,0,0.35)];"
+            class="group relative overflow-hidden rounded-3xl border border-slate-900/10 dark:bg-white/5 dark:shadow-2xl dark:border-white/10 bg-white/5 backdrop-blur-xl shadow-2xl transition-transform hover:-translate-y-0.5 dark:hover:shadow-[0_30px_60px_rgba(0,0,0,0.35)];"
           >
             <div class="feature-glow"></div>
             <div class="relative p-6">
               <div
-                class="size-11 rounded-2xl grid place-items-center bg-white/10 border border-white/10"
+                class="size-11 rounded-2xl grid place-items-center bg-slate-900/10 dark:bg-white/10 border-slate900/10 border dark:border-white/10"
               >
                 <i class="bi bi-fingerprint text-xl"></i>
               </div>
-              <h3 class="mt-4 text-lg font-semibold">Add New Scan</h3>
-              <p class="mt-1 text-sm text-white/60">
-                Pick a user and capture a new fingerprint. Guided SweetAlert2 stages.
+              <h3 class="mt-4 text-lg font-semibold text-slate-900 dark:text-white">
+                {{ $t('common.newScan') }}
+              </h3>
+              <p class="mt-1 text-sm text-slate-600 dark:text-white/60">
+                {{ $t('common.card2') }}
               </p>
               <div
-                class="mt-5 inline-flex items-center gap-1 text-sm text-indigo-300 group-hover:gap-2 transition-all"
+                class="mt-5 inline-flex items-center gap-1 text-sm text-indigo-600 dark:text-indigo-300 group-hover:gap-2 transition-all"
               >
-                Start a scan <i class="bi bi-arrow-right-short text-xl"></i>
+                {{ $t('common.start') }} <i class="bi bi-arrow-right-short text-xl"></i>
               </div>
             </div>
           </RouterLink>
@@ -74,23 +72,25 @@
           <!-- Card: Manage Scans -->
           <RouterLink
             to="/manageScan"
-            class="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-2xl transition-transform hover:-translate-y-0.5 hover:shadow-[0_30px_60px_rgba(0,0,0,0.35)];"
+            class="group relative overflow-hidden rounded-3xl border border-slate-900/10 dark:bg-white/5 dark:shadow-2xl dark:border-white/10 bg-white/5 backdrop-blur-xl shadow-2xl transition-transform hover:-translate-y-0.5 dark:hover:shadow-[0_30px_60px_rgba(0,0,0,0.35)];"
           >
             <div class="feature-glow"></div>
             <div class="relative p-6">
               <div
-                class="size-11 rounded-2xl grid place-items-center bg-white/10 border border-white/10"
+                class="size-11 rounded-2xl grid place-items-center bg-slate-900/10 dark:bg-white/10 border-slate900/10 border dark:border-white/10"
               >
                 <i class="bi bi-collection text-xl"></i>
               </div>
-              <h3 class="mt-4 text-lg font-semibold">Manage Scans</h3>
-              <p class="mt-1 text-sm text-white/60">
-                Browse users, trigger scans, delete, and filter—all in one place.
+              <h3 class="mt-4 text-lg font-semibold text-slate-900 dark:text-white">
+                {{ $t('common.ManageUsers') }}
+              </h3>
+              <p class="mt-1 text-sm text-slate-900 dark:text-white/60">
+                {{ $t('common.card1') }}
               </p>
               <div
-                class="mt-5 inline-flex items-center gap-1 text-sm text-indigo-300 group-hover:gap-2 transition-all"
+                class="mt-5 inline-flex items-center gap-1 text-sm text-indigo-600 dark:text-indigo-300 group-hover:gap-2 transition-all"
               >
-                Open dashboard <i class="bi bi-arrow-right-short text-xl"></i>
+                {{ $t('common.ManageUsers') }} <i class="bi bi-arrow-right-short text-xl"></i>
               </div>
             </div>
           </RouterLink>
@@ -98,56 +98,77 @@
 
         <!-- stats / highlights -->
         <div class="mt-14 grid sm:grid-cols-3 gap-5">
-          <div class="rounded-2xl border border-white/10 bg-white/5 backdrop-blur p-5 shadow">
-            <p class="text-xs text-white/60">Latency</p>
-            <p class="text-2xl font-semibold">~120ms</p>
+          <div
+            class="rounded-2xl border bg-white border-slate-900/10 dark:border-white/10 dark:bg-white/5 dark:backdrop-blur/10 p-5 shadow"
+          >
+            <p class="text-xs text-slate-600 dark:text-white/60">Latency</p>
+            <p class="text-2xl text-slate-900 dark:text-white font-semibold">~120ms</p>
           </div>
-          <div class="rounded-2xl border border-white/10 bg-white/5 backdrop-blur p-5 shadow">
-            <p class="text-xs text-white/60">Matches/sec</p>
-            <p class="text-2xl font-semibold">10k+</p>
+          <div
+            class="rounded-2xl border bg-white border-slate-900/10 dark:border-white/10 dark:bg-white/5 dark:backdrop-blur/10 p-5 shadow"
+          >
+            <p class="text-xs text-slate-600 dark:text-white/60">Matches/sec</p>
+            <p class="text-2xl text-slate-900 dark:text-white font-semibold">10k+</p>
           </div>
-          <div class="rounded-2xl border border-white/10 bg-white/5 backdrop-blur p-5 shadow">
-            <p class="text-xs text-white/60">Security</p>
-            <p class="text-2xl font-semibold">AES‑256</p>
+          <div
+            class="rounded-2xl border bg-white border-slate-900/10 dark:border-white/10 dark:bg-white/5 dark:backdrop-blur/10 p-5 shadow"
+          >
+            <p class="text-xs text-slate-600 dark:text-white/60">Security</p>
+            <p class="text-2xl text-slate-900 dark:text-white font-semibold">AES‑256</p>
           </div>
         </div>
       </div>
     </section>
 
     <!-- FOOTER -->
-    <footer class="relative border-t border-white/10">
+    <footer class="relative border-t dark:border-white/10 border-slate-900/10">
       <div
-        class="absolute -inset-x-10 -top-10 h-20 bg-gradient-to-t from-indigo-500/10 to-transparent blur-2xl"
+        class="absolute -top-10 h-20 bg-gradient-to-t from-indigo-500/10 to-transparent blur-2xl"
       ></div>
       <div class="relative container mx-auto px-6 py-10">
         <div class="grid md:grid-cols-3 gap-8 items-start">
           <div>
             <div class="flex items-center gap-3">
-              <div class="h-10 w-10 rounded-xl bg-white/10 grid place-items-center backdrop-blur">
+              <div
+                class="h-10 w-10 rounded-xl bg-slate-900/5 dark:bg-white/10 grid place-items-center backdrop-blur"
+              >
                 <i class="bi bi-fingerprint text-xl"></i>
               </div>
-              <span class="font-semibold tracking-wide">Fingerprint System</span>
+              <span class="font-semibold tracking-wide text-slate-900 dark:text-white">{{
+                $t('common.appName')
+              }}</span>
             </div>
-            <p class="text-white/60 mt-3 max-w-sm">
-              A modern frontend built with Vue 3, Tailwind, Pinia, and SweetAlert2. Smooth
-              animations, glass UI, mock-ready.
+            <p class="dark:text-white/60 mt-3 max-w-sm text-slate-600">
+              {{ $t('common.desc') }}
             </p>
           </div>
 
           <div class="text-sm">
-            <h4 class="font-semibold mb-3">Quick Links</h4>
-            <ul class="space-y-2 text-white/70">
+            <h4 class="font-semibold mb-3 text-slate-900 dark:text-white">
+              {{ $t('common.quick') }}
+            </h4>
+            <ul class="space-y-2 dark:text-white/70 text-slate-600">
               <li>
-                <RouterLink class="hover:text-white" to="/check">Check Fingerprint</RouterLink>
+                <RouterLink class="hover:text-slate-900 dark:hover:text-white" to="/checkScan">{{
+                  $t('common.CheckFingerprint')
+                }}</RouterLink>
               </li>
-              <li><RouterLink class="hover:text-white" to="/scan">Add New Scan</RouterLink></li>
-              <li><RouterLink class="hover:text-white" to="/devices">Manage Scans</RouterLink></li>
+              <li>
+                <RouterLink class="hover:text-slate-900 dark:hover:text-white" to="/newScan">{{
+                  $t('common.newScan')
+                }}</RouterLink>
+              </li>
+              <li>
+                <RouterLink class="hover:text-slate-900 dark:hover:text-white" to="/manageScan">{{
+                  $t('common.ManageUsers')
+                }}</RouterLink>
+              </li>
             </ul>
           </div>
 
           <div class="text-sm">
-            <h4 class="font-semibold mb-3">Tech</h4>
-            <ul class="space-y-2 text-white/70">
+            <h4 class="font-semibold mb-3 text-slate-900 dark:text-white">Tech</h4>
+            <ul class="space-y-2 text-slate-600 dark:text-white/70">
               <li>Vue 3 + Vite</li>
               <li>Pinia + Router</li>
               <li>Tailwind + SweetAlert2</li>
@@ -156,13 +177,13 @@
         </div>
 
         <div
-          class="mt-10 flex flex-col sm:flex-row items-center justify-between gap-4 text-white/50 text-xs"
+          class="mt-10 flex flex-col sm:flex-row items-center justify-between gap-4 text-slate-500 dark:text-white/50 text-xs"
         >
           <p>© {{ year }} Fingerprint System. All rights reserved.</p>
           <div class="flex items-center gap-4">
-            <a class="hover:text-white" href="#">Privacy</a>
-            <a class="hover:text-white" href="#">Terms</a>
-            <a class="hover:text-white" href="#">Status</a>
+            <a class="hover:text-slate-900 dark:hover:text-white" href="#">Privacy</a>
+            <a class="hover:text-slate-900 dark:hover:text-white" href="#">Terms</a>
+            <a class="hover:text-slate-900 dark:hover:text-white" href="#">Status</a>
           </div>
         </div>
       </div>
@@ -173,6 +194,9 @@
 <script setup lang="ts">
 import fingerPrintHero from '@/components/fingerPrintHero.vue'
 import { computed } from 'vue'
+import { useLocale } from '@/composable/useLocale'
+
+const { locale, t } = useLocale()
 
 const year = computed(() => new Date().getFullYear())
 </script>
