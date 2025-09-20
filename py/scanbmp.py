@@ -4,7 +4,6 @@ import ctypes
 from ctypes import byref, c_int, c_uint, c_ubyte, c_char_p, c_void_p
 import json
 from http.server import HTTPServer, BaseHTTPRequestHandler
-from enhance import enhance_fingerprint
 import threading
 # ===== User config =====
 DLL_NAME = "SynoAPIEx.dll"         # Put next to this script or add folder to PATH
@@ -187,7 +186,6 @@ class SimpleHandler(BaseHTTPRequestHandler):
                 try:
                     h, mode = open_device_resilient()
                     img = wait_for_finger_and_capture(h, DEFAULT_ADDR, TIMEOUT_SECONDS)
-                    enhance_fingerprint(img)
                     print(f"Captured {len(img)} bytes. Saving BMP → {OUTPUT_BMP}")
                     save_bmp_via_dll(img, OUTPUT_BMP)
                     dll.PSCloseDeviceEx(h)

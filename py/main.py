@@ -26,7 +26,7 @@ app.add_middleware(
 
 # ================== DB UTILS ==================
 def get_db():
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(DB_PATH, check_same_thread=False)
     conn.enable_load_extension(True)
     sqlite_vec.load(conn)
     conn.enable_load_extension(False)
@@ -37,7 +37,7 @@ def get_db():
         conn.close()
 
 def init_db():
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(DB_PATH, check_same_thread=False)
     conn.enable_load_extension(True)
     sqlite_vec.load(conn)
     conn.enable_load_extension(False)
@@ -139,8 +139,8 @@ def delete_person(person_id: int, db: sqlite3.Connection = Depends(get_db)):
 
 @app.post("/api/scans", response_model=ScanOut, status_code=201)
 def create_scan(scan: ScanIn, db: sqlite3.Connection = Depends(get_db)):
-    # with httpx.Client(timeout=30) as client:
-    #     response = client.get("http://127.0.0.1:8999/scan")
+    with httpx.Client(timeout=30) as client:
+        response = client.get("http://127.0.0.1:8999/scan")
     cur = db.cursor()
     enhance_fingerprint()
     emb = get_fingerprint_embedding("fingerprint.bmp", "test")
@@ -183,8 +183,8 @@ def get_scans_by_person(person_id: int, db: sqlite3.Connection = Depends(get_db)
 
 @app.get("/api/match")
 def get_match(db: sqlite3.Connection = Depends(get_db)):
-    # with httpx.Client(timeout=30) as client:
-    #     response = client.get("http://127.0.0.1:8999/scan")
+    with httpx.Client(timeout=30) as client:
+        response = client.get("http://127.0.0.1:8999/scan")
     start_time = time.perf_counter()
     enhance_fingerprint()
     emb = get_fingerprint_embedding("fingerprint.bmp", "test")
