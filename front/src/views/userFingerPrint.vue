@@ -111,7 +111,7 @@
       </div>
 
       <!-- Grid of captures -->
-      <div class="mt-8 grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+      <div class="mt-8 grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5" v-if="paged.length">
         <div
           v-for="cap in paged"
           :key="cap.id"
@@ -126,11 +126,13 @@
             >
               <div class="aspect-square grid place-items-center">
                 <img
-                  v-if="cap.thumb"
-                  :src="cap.thumb"
+                  v-if="imgMap[cap.id] || cap.thumb"
+                  :src="imgMap[cap.id] || cap.thumb"
                   class="w-full h-full object-cover"
                   :alt="`Fingerprint ${cap.id}`"
+                  @error="onImgError(cap.id)"
                 />
+
                 <div
                   v-else
                   class="h-36 w-full grid place-items-center text-slate-400 text-xs dark:text-white/50"
@@ -179,6 +181,43 @@
         </div>
       </div>
 
+      <!-- Empty state (when paged.length === 0) -->
+      <div v-else class="mt-8">
+        <div
+          class="relative overflow-hidden rounded-3xl border bg-white backdrop-blur-xl shadow-lg border-slate-200 dark:border-white/10 dark:bg-white/5 dark:shadow-2xl"
+        >
+          <div
+            class="absolute -inset-0.5 rounded-3xl bg-gradient-to-r from-indigo-500/10 to-fuchsia-500/10 blur-2xl dark:from-indigo-500/10 dark:to-fuchsia-500/10"
+          ></div>
+
+          <div class="relative p-8 flex flex-col md:flex-row items-center gap-6">
+            <!-- Icon -->
+            <div
+              class="grid place-items-center size-16 rounded-2xl border bg-white border-slate-200 dark:border-white/10 dark:bg-white/10"
+            >
+              <i class="bi bi-fingerprint text-2xl opacity-80"></i>
+            </div>
+
+            <!-- Text -->
+            <div class="text-center md:text-left md:flex-1">
+              <h3 class="text-lg font-semibold text-slate-900 dark:text-white">
+                No fingerprints yet
+              </h3>
+              <p class="text-sm text-slate-600 dark:text-white/60 mt-1">
+                You haven’t added any fingerprint scans. Want to add your first one?
+              </p>
+            </div>
+
+            <RouterLink
+              :to="{ name: 'newScan' }"
+              class="px-4 py-2 rounded-xl bg-white text-slate-900 text-sm hover:bg-slate-200/50 dark:bg-white/10 dark:hover:bg-white/15 border border-slate-900/10 dark:border-white/10 transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+            >
+              <i class="bi bi-plus-lg mr-1"></i>Add fingerprint
+            </RouterLink>
+          </div>
+        </div>
+      </div>
+
       <!-- Pagination -->
       <div
         class="flex flex-col sm:flex-row items-center justify-between gap-4 px-4 sm:px-6 py-4 border-t border-slate-200 dark:border-white/10"
@@ -222,7 +261,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, RouterLink } from 'vue-router'
 import Swal from '@/plugins/swal-theme'
 import axios from 'axios'
@@ -343,6 +382,25 @@ async function fetchPrints() {
   }
 }
 
+const fetchImage = async (id: number) => {
+  try {
+    const { data, headers } = await axios.get(apiURL + 'scans/' + id, {
+      responseType: 'blob',
+    })
+
+    if (data instanceof Blob) {
+      // sanity: ensure it's an image (best-effort)
+      const mime = data.type || headers['content-type'] || 'image/png'
+      const blob = data.type ? data : new Blob([data], { type: mime })
+      return URL.createObjectURL(blob)
+    }
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+const imgMap = ref({})
+
 function idToKey(id: number): FingerKey {
   return (FINGERS.find((f) => f.id === id)?.key || 'L_INDEX') as FingerKey
 }
@@ -423,6 +481,25 @@ const paged = computed(() =>
   filtered.value.slice((page.value - 1) * pageSize.value, page.value * pageSize.value),
 )
 
+async function loadPageImages() {
+  const list = paged.value
+  for (const cap of list) {
+    if (imgMap.value[cap.id]) continue
+    const url = await fetchImage(cap.id)
+    if (url) {
+      imgMap.value[cap.id] = url
+    }
+  }
+}
+
+watch(
+  () => paged.value.map((c) => c.id).join(','),
+  () => {
+    loadPageImages()
+  },
+  { immediate: true },
+)
+
 function refresh() {
   page.value = 1
 }
@@ -436,19 +513,46 @@ function initials(name: string) {
     .join('')
 }
 
+async function ensureImageUrl(cap: Capture): Promise<string | null> {
+  let url = imgMap.value[cap.id]
+  if (!url) {
+    url = await fetchImage(cap.id).catch(() => null)
+    if (url) imgMap.value[cap.id] = url // cache
+  }
+  return url
+}
+
 async function view(cap: Capture) {
+  // Try to get the full image (fetch if needed)
+  const full = await ensureImageUrl(cap)
+  const src = full || cap.thumb
+
   await Swal.fire({
     title: labelFor(cap.finger),
-    html: `<div style="display:flex;flex-direction:column;gap:8px;align-items:center"><img src="${cap.thumb}" style="max-width:360px;border-radius:14px;border:1px solid rgba(255,255,255,.12)"/><small>${new Date(cap.created_at).toLocaleString()} • ${cap.device_name} (${cap.device_loc}) • ${cap.confidence}%</small></div>`,
+    imageUrl: src,
+    imageAlt: `Fingerprint ${cap.id}`,
+    imageWidth: 360,
     showConfirmButton: false,
+    footer: `<small>${new Date(cap.created_at).toLocaleString()} • ${cap.device_name} (${cap.device_loc})${cap.confidence != null ? ` • ${cap.confidence}%` : ''}</small>`,
   })
 }
 
-function download(cap: Capture) {
-  if (!cap.thumb) return
+function guessExt(src: string) {
+  if (src.startsWith('data:')) {
+    const m = /^data:image\/(\w+)/.exec(src)
+    return (m?.[1] || 'png').replace('jpeg', 'jpg')
+  }
+  const m = src.match(/\.(png|jpe?g|webp|gif|bmp|tiff?)(?=$|\?)/i)
+  return (m?.[1] || 'png').toLowerCase().replace('jpeg', 'jpg')
+}
+
+async function download(cap: Capture) {
+  const src = imgMap.value[cap.id] || cap.thumb
+  if (!src) return
+
   const a = document.createElement('a')
-  a.href = cap.thumb
-  a.download = `fp-${userId}-${cap.id}.png`
+  a.href = src
+  a.download = `fp-${userId}-${cap.id}.${guessExt(src)}`
   document.body.appendChild(a)
   a.click()
   a.remove()
